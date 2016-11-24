@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
-#include "glogger2.h"
+#include "glogger.h"
 #include <ctime>
 #include "tstream.h"
 #include <io.h>
@@ -11,9 +11,9 @@ using namespace gcommon;
 
 namespace UnitTest_common
 {		
-	TEST_CLASS(UnitTest_GLogger2)
+	TEST_CLASS(UnitTest_GLogger)
 	{
-		GLogger2 glogger;
+		GLogger glogger;
 
 	public:		
 
@@ -172,12 +172,12 @@ namespace UnitTest_common
 			typedef struct _testset
 			{
 				tstring format;
-				const TCHAR* arg;
+				const tchar* arg;
 			}TESTSET;
 			typedef struct _resultset
 			{
 				tstring str;
-				const TCHAR* err_msg;
+				const tchar* err_msg;
 			}RESULTSET;
 
 			TESTSET test_set[] = 
@@ -221,7 +221,7 @@ namespace UnitTest_common
 				return;
 			}
 
-			TCHAR* line = new TCHAR[max_str_len+1];
+			tchar* line = new tchar[max_str_len+1];
 			for each (RESULTSET rs in result_set)
 			{
 				infile.getline(line, max_str_len, TEXT('\n'));
@@ -237,12 +237,12 @@ namespace UnitTest_common
 			typedef struct _testset
 			{
 				tstring format;
-				const TCHAR* arg;
+				const tchar* arg;
 			}TESTSET;
 			typedef struct _resultset
 			{
 				tstring str;
-				const TCHAR* err_msg;
+				const tchar* err_msg;
 			}RESULTSET;
 
 			TESTSET test_set[] =
@@ -285,7 +285,7 @@ namespace UnitTest_common
 				return;
 			}
 
-			TCHAR line[81];
+			tchar line[81];
 			for each (RESULTSET rs in result_set)
 			{
 				infile.getline(line, 80, TEXT('\n'));
@@ -464,7 +464,7 @@ namespace UnitTest_common
 				return;
 			}
 
-			TCHAR line[81];
+			tchar line[81];
 			infile.getline(line, 80, TEXT('\n'));
 			Assert::AreEqual(TEXT("   [##] test"), line);
 			infile.getline(line, 80, TEXT('\n'));
@@ -509,7 +509,7 @@ namespace UnitTest_common
 				return;
 			}
 
-			TCHAR line[81];
+			tchar line[81];
 			infile.getline(line, 80, TEXT('\n'));
 			Assert::AreEqual(TEXT("   [##] logtest"), line);
 
@@ -553,7 +553,7 @@ namespace UnitTest_common
 				return;
 			}
 
-			TCHAR line[81];
+			tchar line[81];
 			infile.getline(line, 80, TEXT('\n'));
 			Assert::AreEqual(TEXT("   [##] logtest"), line);
 

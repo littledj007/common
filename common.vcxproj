@@ -89,6 +89,7 @@
     <ClCompile Include="gthread.cpp" />
     <ClCompile Include="PipeIO.cpp" />
     <ClCompile Include="printable.cpp" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bytearray.h" />

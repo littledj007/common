@@ -282,39 +282,41 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger::formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap)
+	tstring GLogger::formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap)
 	{
+		tstring msg;
 		if (format.find('%') != tstring::npos)
 		{
 			tchar* msg_tmp = new tchar[format.length() + 1024];
 			vstprintf(msg_tmp, format.c_str(), ap);
-			m_msg.assign(msg_tmp);
+			msg.assign(msg_tmp);
 			delete[] msg_tmp;
 		}
 		else
 		{
-			m_msg = format;
+			msg = format;
 		}
 
 		if (type != PRINT_TYPE::RAW)
 		{
-			m_msg = PRINT_TYPE_ICON(type) + TEXT("[") + m_header + TEXT("] ") + m_msg + TEXT("\n");
+			msg = PRINT_TYPE_ICON(type) + TEXT("[") + m_header + TEXT("] ") + msg + TEXT("\n");
 		}
 
 		// 为了防止溢出，将信息截断为MAX_MSG_LEN
-		if (m_msg.length() > 1000)
+		if (msg.length() > 1000)
 		{			
-			if (*(--m_msg.cend()) == '\n')
+			if (*(--msg.cend()) == '\n')
 			{
-				m_msg.erase(m_msg.begin() + 1000 - 3, m_msg.end());
-				m_msg.append(TEXT("..\n"));
+				msg.erase(msg.begin() + 1000 - 3, msg.end());
+				msg.append(TEXT("..\n"));
 			}
 			else
 			{
-				m_msg.erase(m_msg.begin() + 1000, m_msg.end());
-				m_msg.append(TEXT("..."));
+				msg.erase(msg.begin() + 1000, msg.end());
+				msg.append(TEXT("..."));
 			}
 		}			
+		return msg;
 	}
 
 	/********************************************************************
@@ -326,12 +328,13 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger::formatMsg(const PRINT_TYPE type, const tstring format, ...)
+	tstring GLogger::formatMsg(const PRINT_TYPE type, const tstring format, ...)
 	{
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(type, format, ap);
+		tstring msg = formatMsg_v(type, format, ap);
 		va_end(ap);
+		return msg;
 	}
 
 	/********************************************************************
@@ -340,11 +343,19 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	********************************************************************/
-	void GLogger::saveToMessagePool()
+	void GLogger::saveToMessagePool(const PRINT_TYPE type, const tstring& msg)
 	{
 		// 保存至消息缓冲区
 		g_poolMutex.lock();
-		m_msgPool[m_msgPoolPos] = m_msg;
+		m_msg = msg;
+		if (type == PRINT_TYPE::WARNING)
+			m_warningmsg = msg;
+		else if (type == PRINT_TYPE::ERR)
+		{
+			m_warningmsg = msg;
+			m_errormsg = msg;
+		}
+		m_msgPool[m_msgPoolPos] = msg;
 		m_msgPoolPos = (m_msgPoolPos + 1) % MAX_POOL_SIZE;
 		if (m_msgPoolCount < MAX_POOL_SIZE)		
 			m_msgPoolCount++;
@@ -359,21 +370,19 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::error(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(PRINT_TYPE::ERR, format, ap);
+		tstring msg = formatMsg_v(PRINT_TYPE::ERR, format, ap);
 		va_end(ap);
 
 		// 输出
 		if (m_enableColor)	// 红色
-			output(m_msg, PRINT_COLOR::BRIGHT_RED);
+			output(msg, PRINT_COLOR::BRIGHT_RED);
 		else
-			output(m_msg);
+			output(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
-		m_errormsg = m_msg;
+		saveToMessagePool(PRINT_TYPE::ERR, msg);
 	}	
 
 	/********************************************************************
@@ -384,22 +393,19 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::warning(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(PRINT_TYPE::WARNING, format, ap);
+		tstring msg = formatMsg_v(PRINT_TYPE::WARNING, format, ap);
 		va_end(ap);
 
 		// 输出
 		if (m_enableColor)	// 黄色
-			output(m_msg, PRINT_COLOR::DARK_YELLOW);
+			output(msg, PRINT_COLOR::DARK_YELLOW);
 		else
-			output(m_msg);
+			output(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
-		m_warningmsg = m_msg;
-		m_errormsg = m_msg;
+		saveToMessagePool(PRINT_TYPE::WARNING, msg);
 	}
 
 	/********************************************************************
@@ -410,19 +416,18 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::info(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(PRINT_TYPE::INFO, format, ap);
+		tstring msg = formatMsg_v(PRINT_TYPE::INFO, format, ap);
 		va_end(ap);	
 
 		if (m_enableColor)
-			output(m_msg, m_defaultColor);
+			output(msg, m_defaultColor);
 		else
-			output(m_msg);
+			output(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
+		saveToMessagePool(PRINT_TYPE::INFO, msg);
 	}
 
 	/********************************************************************
@@ -433,59 +438,50 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::debug1(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		if (m_debugLevel>0)
 		{
 			va_list ap;
 			va_start(ap, format);
-			formatMsg_v(PRINT_TYPE::DEBUG1, format, ap);
+			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG1, format, ap);
 			va_end(ap);
 			
 			// 输出
 			if (m_enableColor)	// 绿色
-				output(m_msg, PRINT_COLOR::DARK_GREEN);
+				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
-				output(m_msg);
-
-			// 保存当前消息
-			saveToMessagePool();
+				output(msg);
 		}
 	}
 	void GLogger::debug2(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		if (m_debugLevel>1)
 		{
 			va_list ap;
 			va_start(ap, format);
-			formatMsg_v(PRINT_TYPE::DEBUG2, format, ap);
+			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG2, format, ap);
 			va_end(ap);
 
 			// 输出
 			if (m_enableColor)	
-				output(m_msg, PRINT_COLOR::DARK_GREEN);
+				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
-				output(m_msg);
+				output(msg);
 		}
 	}
 	void GLogger::debug3(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		if (m_debugLevel>2)
 		{
 			va_list ap;
 			va_start(ap, format);
-			formatMsg_v(PRINT_TYPE::DEBUG3, format, ap);
+			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG3, format, ap);
 			va_end(ap);
 
 			// 输出
 			if (m_enableColor)	
-				output(m_msg, PRINT_COLOR::DARK_GREEN);
+				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
-				output(m_msg);
-
-			// 保存当前消息
-			saveToMessagePool();
+				output(msg);
 		}
 	}
 
@@ -497,19 +493,18 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::screen(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(PRINT_TYPE::RAW, format, ap);
+		tstring msg = formatMsg_v(PRINT_TYPE::RAW, format, ap);
 		va_end(ap);
 		
 		if (m_enableColor)
-			output_screen(m_msg, m_defaultColor);
+			output_screen(msg, m_defaultColor);
 		else
-			output_screen(m_msg);
+			output_screen(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
+		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
 	/********************************************************************
@@ -520,16 +515,15 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::logfile(const tstring format, ...)
 	{
-		this->m_msg.clear();
 		va_list ap;
 		va_start(ap, format);
-		formatMsg_v(PRINT_TYPE::RAW, format, ap);
+		tstring msg = formatMsg_v(PRINT_TYPE::RAW, format, ap);
 		va_end(ap);
 
-		output_file();
+		output_file(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
+		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
 	/********************************************************************
@@ -543,7 +537,6 @@ namespace gcommon
 	********************************************************************/
 	void GLogger::insertCurrentTime(tstring format)
 	{
-		this->m_msg.clear();
 		if (format.empty())
 			format = TEXT("** yyyy-MM-dd hh:mm:ss **\n");
 
@@ -599,16 +592,16 @@ namespace gcommon
 			}
 		}
 
-		formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
+		tstring msg = formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
 		delete[] ct;
 
 		if (m_enableColor)
-			output(m_msg, m_defaultColor);
+			output(msg, m_defaultColor);
 		else
-			output(m_msg);
+			output(msg);
 
 		// 保存当前消息
-		saveToMessagePool();
+		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
 	/********************************************************************

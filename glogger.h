@@ -151,11 +151,11 @@ namespace gcommon
 		// 写文件
 		void output_file(const tstring& msg = TEXT(""));
 		// 格式化字符串保存到m_msg
-		void formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap);
+		tstring formatMsg_v(const PRINT_TYPE type, const tstring& format, va_list ap);
 		// 格式化字符串保存到m_msg
-		void formatMsg(const PRINT_TYPE type, const tstring format, ...);
+		tstring formatMsg(const PRINT_TYPE type, const tstring format, ...);
 		// 保存当前消息至消息池
-		void saveToMessagePool();
+		void saveToMessagePool(const PRINT_TYPE type, const tstring& msg = TEXT(""));
 		// 显示类型图标
 		tstring PRINT_TYPE_ICON(const PRINT_TYPE type);
 

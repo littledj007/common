@@ -32,7 +32,7 @@
     <ClCompile Include="unittest_bytebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="unittest_glogger2.cpp">
+    <ClCompile Include="unittest_glogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
