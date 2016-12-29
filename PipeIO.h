@@ -35,7 +35,7 @@ public:
 
 	// 客户端函数
 	bool OpenPipe(const tstring& pipeName);
-	void Wait(uint32_t dwTimeout);
+	BOOL Wait(const tstring& pipeName, uint32_t dwTimeout);
 
 	// 共用函数
 	bool ReadPipe(char* buff, uint32_t len, uint32_t& nRead, uint32_t timeout);//读取数据

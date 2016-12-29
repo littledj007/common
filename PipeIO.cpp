@@ -1,6 +1,7 @@
 // pipeio.cpp
 // 命名管道类，负责创建命名管道，并能够从管道中读取数据	
 // 2013-11-28,littledj: CPipeIO类不再依赖于pipeInterface
+// 需要包含：Advapi32.lib
 
 #include "windows.h"
 #include "PipeIO.h"
@@ -62,8 +63,8 @@ bool CPipeIO::CreatePipe(const tstring& pipeName)
 	// 创建命令管道
 	SECURITY_ATTRIBUTES secAttrib;
 	SECURITY_DESCRIPTOR sd;
-	InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );
-	SetSecurityDescriptorDacl( &sd, true, NULL, false );
+	InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );  // Advapi32.lib
+	SetSecurityDescriptorDacl( &sd, true, NULL, false );                // Advapi32.lib
 	secAttrib.bInheritHandle= true;
 	secAttrib.nLength= sizeof(SECURITY_ATTRIBUTES);
 	secAttrib.lpSecurityDescriptor= &sd;	
@@ -233,11 +234,8 @@ void CPipeIO::Connect()
 /* 修改记录: 
 /*   2013-12-04,littledj: create 
 /********************************************************************/
-void CPipeIO::Wait(uint32_t dwTimeout)
-{
-	if (m_bInit)
-	{		
-		WaitNamedPipe(m_PipeName.c_str(),dwTimeout);
-	}
+BOOL CPipeIO::Wait(const tstring& pipeName, uint32_t dwTimeout)
+{	
+	return WaitNamedPipe(pipeName.c_str(),dwTimeout);
 }
 
