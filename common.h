@@ -8,6 +8,15 @@
 
 #include "tstream.h"
 
+#ifdef __LINUX__
+#else
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef __int32 ssize_t;
+#endif
+#endif
+
 using namespace std;
 
 namespace gcommon
@@ -27,8 +36,8 @@ namespace gcommon
 	uint32_t g_ntohl(const uint32_t data);
 	int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos = 1);
 	tstring GetCurrentDirPath();
-	tchar* inet_ltot(unsigned long ip);
-	unsigned long inet_ttol(const tchar* strIP);
+	tchar* inet_ltot(uint32_t ip);
+	uint32_t inet_ttol(const tchar* strIP);
 	uint32_t random(uint32_t start, uint32_t end);
 	char* wtoa(const wchar_t* data, int len = 0);
 	wchar_t* atow(const char* data, int len = 0);

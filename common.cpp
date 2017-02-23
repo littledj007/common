@@ -224,7 +224,7 @@ namespace gcommon
 		if (bFirst)
 		{
 			char* chr = new char[1];
-			srand((long)chr); // osx 上需要long
+			srand((size_t)chr); // osx 上需要long
 			bFirst = false;
 		}
 
@@ -251,13 +251,13 @@ namespace gcommon
 	* [修改记录]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
-	tchar* inet_ltot(unsigned long ip)
+	tchar* inet_ltot(uint32_t ip)
 	{
-		unsigned char chIP[4];
-		chIP[0] = (unsigned char)(ip);
-		chIP[1] = (unsigned char)(ip >> 8);
-		chIP[2] = (unsigned char)(ip >> 16);
-		chIP[3] = (unsigned char)(ip >> 24);
+		uint8_t chIP[4];
+		chIP[0] = (uint8_t)(ip);
+		chIP[1] = (uint8_t)(ip >> 8);
+		chIP[2] = (uint8_t)(ip >> 16);
+		chIP[3] = (uint8_t)(ip >> 24);
 
 		static tchar strIP[16];
 		memset(strIP, 0, 16 * sizeof(tchar));
@@ -276,14 +276,14 @@ namespace gcommon
 	* [修改记录]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
-	unsigned long inet_ttol(const tchar* strIP)
+	uint32_t inet_ttol(const tchar* strIP)
 	{
 		if (strIP == NULL)
 		{
 			return 0;
 		}
 
-		unsigned long ip = 0;
+		uint32_t ip = 0;
 		size_t ip_len = tcslen(strIP);
 		size_t data_len = 0;
 		size_t pos = 0;
@@ -298,28 +298,28 @@ namespace gcommon
 		}
 
 		data_len = tcslen(strIPTmp + pos);
-		ip |= (unsigned char)ttoi(strIPTmp + pos);
+		ip |= (uint8_t)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
 		data_len = tcslen(strIPTmp + pos);
-		ip |= (unsigned char)ttoi(strIPTmp + pos);
+		ip |= (uint8_t)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
 		data_len = tcslen(strIPTmp + pos);
-		ip |= (unsigned char)ttoi(strIPTmp + pos);
+		ip |= (uint8_t)ttoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
 		data_len = tcslen(strIPTmp + pos);
-		ip |= (unsigned char)ttoi(strIPTmp + pos);
+		ip |= (uint8_t)ttoi(strIPTmp + pos);
 		pos += data_len;
 		if (pos == ip_len)
 		{
