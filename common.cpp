@@ -155,18 +155,18 @@ namespace gcommon
 	}
 
 	/********************************************************************
-	/* 函数名: GetCurrentDirPath
-	/* 描述: 获取当前可执行程序所在文件夹的全路径
-	/* 输入:
-	/*   无
-	/* 输出:
-	/*   tstring: 当前文件夹路径
-	/* 修改记录:
-	/*   2013-11-17,littledj: create
-	/*   2013-12-07,littledj: 返回值改为CString，不再使用全局变量
-	/*   2015-07-21,littledj; 返回值改为tstring,如果失败返回".\"
-	/*   2016-07-08,littledj: 增加对linux的支持
-	/********************************************************************/
+	* 函数名: GetCurrentDirPath
+	* 描述: 获取当前可执行程序所在文件夹的全路径
+	* 输入:
+	*   无
+	* 输出:
+	*   tstring: 当前文件夹路径
+	* 修改记录:
+	*   2013-11-17,littledj: create
+	*   2013-12-07,littledj: 返回值改为CString，不再使用全局变量
+	*   2015-07-21,littledj; 返回值改为tstring,如果失败返回".\"
+	*   2016-07-08,littledj: 增加对linux的支持
+	********************************************************************/
 	tstring GetCurrentDirPath()
 	{
 		tstring strCurrentDir;
@@ -556,14 +556,22 @@ namespace gcommon
 #endif
 	}
 
-	string ReplaseAllSubString(string & str, const string & src, const string & dst)
+	void ReplaseAllSubString(string & str, const string & src, const string & dst)
 	{
 		size_t fd = string::npos;
 		while ((fd = str.find(src)) != string::npos)
 		{
 			str.replace(fd, src.size(), dst);
 		}
-		return string();
+	}
+
+	void ReplaseAllSubString(wstring & str, const wstring & src, const wstring & dst)
+	{
+		size_t fd = wstring::npos;
+		while ((fd = str.find(src)) != wstring::npos)
+		{
+			str.replace(fd, src.size(), dst);
+		}
 	}
 
 	// 设置ini文件

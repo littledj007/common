@@ -45,7 +45,8 @@ namespace gcommon
 	tstring WStringToTString(const wstring& str);
 	string TStringToString(const tstring& str);
 	wstring TStringToWString(const tstring& str);
-	string ReplaseAllSubString(string& str, const string& src, const string& dst);
+	void ReplaseAllSubString(string& str, const string& src, const string& dst);
+	void ReplaseAllSubString(wstring& str, const wstring& src, const wstring& dst);
 	tstring GetConfigString(const tstring& filename, const tstring& key,
 		const tstring& dft = TEXT(""), const tstring& title = TEXT("config"));
 	int GetConfigInt(const tstring& filename, const tstring& key,
