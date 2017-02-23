@@ -1,4 +1,10 @@
 #pragma once
+#ifdef __LINUX__
+#include <unistd.h>
+#else
+#include <io.h>  // for access()
+#endif
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
