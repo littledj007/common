@@ -7,6 +7,8 @@
 #include "PipeIO.h"
 #include "common.h"
 
+#pragma comment(lib,"Advapi32.lib")  // for InitializeSecurityDescriptor ...
+
 CPipeIO::CPipeIO()
 {
 	m_PipeName.clear();
