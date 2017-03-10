@@ -136,7 +136,8 @@ namespace gcommon
 		void logfile(const tstring format, ...);
 
 		// 插入当前时间
-		void insertCurrentTime(tstring format = TEXT("** yyyy-MM-dd HH:mm:ss **\n"));
+		void insertCurrentTime(tstring format = TEXT("** yyyy-MM-dd hh:mm:ss **\n"), 
+			PRINT_COLOR color = PRINT_COLOR::DARK_WHITE);
 
 		// 将消息池中的信息写入日志
 		void logMessagePool();

@@ -528,14 +528,14 @@ namespace gcommon
 
 	/********************************************************************
 	* [函数名]: insertCurrentTime
-	* [描述]: 日志当前时间 (eg: YYYY-MM-DD hh:mm:ss)
+	* [描述]: 日志当前时间 (eg: yyy-MM-dd hh:mm:ss)
 	*         y: year    M: month    d: day
 	*         h: hour    m: minute   s: second
 	* [修改记录]:
 	*   2015-05-20,littledj: create
 	*   2015-05-20,littledj: 增加自定义格式
 	********************************************************************/
-	void GLogger::insertCurrentTime(tstring format)
+	void GLogger::insertCurrentTime(tstring format, PRINT_COLOR color)
 	{
 		if (format.empty())
 			format = TEXT("** yyyy-MM-dd hh:mm:ss **\n");
@@ -596,7 +596,7 @@ namespace gcommon
 		delete[] ct;
 
 		if (m_enableColor)
-			output(msg, m_defaultColor);
+			output(msg, color);
 		else
 			output(msg);
 
