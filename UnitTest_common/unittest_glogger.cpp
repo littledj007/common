@@ -4,6 +4,7 @@
 #include <ctime>
 #include "tstream.h"
 #include <io.h>
+#include <tchar.h>
 
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

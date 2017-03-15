@@ -18,7 +18,7 @@ DWORD WINAPI TestThread(PVOID para)
 
 int main()
 {
-	const int THREAD_COUNT = 2;
+	const int THREAD_COUNT = 5;
 	DWORD id;
 	HANDLE* hthread = new HANDLE[THREAD_COUNT];
 	for (int i = 0; i < THREAD_COUNT; i++)

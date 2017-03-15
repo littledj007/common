@@ -375,13 +375,11 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::ERR, format, ap);
 		va_end(ap);
 
-		// 输出
 		if (m_enableColor)	// 红色
 			output(msg, PRINT_COLOR::BRIGHT_RED);
 		else
 			output(msg);
 
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::ERR, msg);
 	}	
 
@@ -398,13 +396,11 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::WARNING, format, ap);
 		va_end(ap);
 
-		// 输出
 		if (m_enableColor)	// 黄色
 			output(msg, PRINT_COLOR::DARK_YELLOW);
 		else
 			output(msg);
 
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::WARNING, msg);
 	}
 
@@ -426,7 +422,6 @@ namespace gcommon
 		else
 			output(msg);
 
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::INFO, msg);
 	}
 
@@ -445,11 +440,11 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG1, format, ap);
 			va_end(ap);
 			
-			// 输出
 			if (m_enableColor)	// 绿色
 				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
 				output(msg);
+			//saveToMessagePool(PRINT_TYPE::DEBUG1, msg); //考虑性能问题
 		}
 	}
 	void GLogger::debug2(const tstring format, ...)
@@ -461,11 +456,11 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG2, format, ap);
 			va_end(ap);
 
-			// 输出
 			if (m_enableColor)	
 				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
 				output(msg);
+			//saveToMessagePool(PRINT_TYPE::DEBUG2, msg);
 		}
 	}
 	void GLogger::debug3(const tstring format, ...)
@@ -477,11 +472,11 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG3, format, ap);
 			va_end(ap);
 
-			// 输出
 			if (m_enableColor)	
 				output(msg, PRINT_COLOR::DARK_GREEN);
 			else
 				output(msg);
+			//saveToMessagePool(PRINT_TYPE::DEBUG3, msg);
 		}
 	}
 
@@ -503,7 +498,6 @@ namespace gcommon
 		else
 			output_screen(msg);
 
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
@@ -521,8 +515,6 @@ namespace gcommon
 		va_end(ap);
 
 		output_file(msg);
-
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
@@ -600,7 +592,6 @@ namespace gcommon
 		else
 			output(msg);
 
-		// 保存当前消息
 		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 

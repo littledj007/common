@@ -20,18 +20,37 @@ using namespace gcommon;
 
 namespace gcommon
 {
+	/********************************************************************
+	* [函数名]: g_htons g_ntohs
+	* [描述]: 实现对2字节数据的字节倒置
+	* [输入]:
+	*   data: uint16_t
+	* [返回值]: uint16_t
+	*   倒置后的值
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	uint16_t g_htons(const uint16_t data)
 	{
 		uint16_t tmp = (data & 0xff00) >> 8;
 		tmp |= (data & 0x00ff) << 8;
 		return tmp;
 	}
-
 	uint16_t g_ntohs(const uint16_t data)
 	{
 		return g_htons(data);
 	}
 
+	/********************************************************************
+	* [函数名]: g_htonl g_ntohl
+	* [描述]: 实现对4字节数据的字节倒置
+	* [输入]:
+	*   data: uint32_t
+	* [返回值]: uint32_t
+	*   倒置后的值
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	uint32_t g_htonl(const uint32_t data)
 	{
 		uint32_t tmp = (data & 0xff000000) >> 24;
@@ -40,7 +59,6 @@ namespace gcommon
 		tmp |= (data & 0x000000ff) << 24;
 		return tmp;
 	}
-
 	uint32_t g_ntohl(const uint32_t data)
 	{
 		return g_htonl(data);
@@ -394,6 +412,17 @@ namespace gcommon
 		return retData;
 	}
 
+	/********************************************************************
+	* [函数名]: SplitString
+	* [描述]: 对字符串按指定字符分割，并返回分割结果
+	* [输入]:
+	*   str: 输入字符串
+	*   ch: 指定的分割字符
+	* [返回值]:
+	*   分割结果
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	vector<wstring> SplitString(const wstring& str, const wchar_t ch)
 	{
 		vector<wstring> strs;
@@ -408,7 +437,6 @@ namespace gcommon
 		strs.push_back(str.substr(start, str.length() - start));
 		return strs;
 	}
-
 	vector<string> SplitString(const string& str, const char ch)
 	{
 		if (str.empty())
@@ -429,6 +457,17 @@ namespace gcommon
 		return strs;
 	}
 
+	/********************************************************************
+	* [函数名]: TrimString
+	* [描述]: 删除字符串开头和结尾的指定字符
+	* [输入]:
+	*   str: （被修改）输入字符串
+	*   ch: 需要删除的字符
+	* [返回值]:
+	*   删除指定字符后的字符串
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	string& TrimString(string& str, const char ch)
 	{
 		if (str.empty() || str.size() == 0)
@@ -447,7 +486,6 @@ namespace gcommon
 
 		return str;
 	}
-
 	wstring& TrimString(wstring& str, const wchar_t ch)
 	{
 		if (str.empty() || str.size() == 0)
@@ -467,13 +505,23 @@ namespace gcommon
 		return str;
 	}
 
+	/********************************************************************
+	* [函数名]: RemoveAllChar
+	* [描述]: 删除字符串中的所有指定字符
+	* [输入]:
+	*   str: （被修改）输入字符串
+	*   ch: 需要删除的字符
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	void RemoveAllChar(string& str, const char ch)
 	{
 		size_t delch = string::npos;
 		while ((delch = str.find(ch)) != string::npos)
 			str.erase(delch, 1);
 	}
-
 	void RemoveAllChar(wstring& str, const wchar_t ch)
 	{
 		size_t delch = wstring::npos;
@@ -481,6 +529,16 @@ namespace gcommon
 			str.erase(delch, 1);
 	}
 
+	/********************************************************************
+	* [函数名]: DeleteEmptyItems
+	* [描述]: 删除vector<string>中的空字符串
+	* [输入]:
+	*   strs: （被修改）字符串向量
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	void DeleteEmptyItems(vector<string>& strs)
 	{
 		for (auto i = strs.begin(); i < strs.end();)
@@ -492,6 +550,17 @@ namespace gcommon
 		}
 	}
 
+	/********************************************************************
+	* [函数名]: StringToWString/StringToTString/TStringToString
+	*           WStringToString/WStringToTString/TStringToWString
+	* [描述]: wstring tstring string间的相互转换（依赖于编译选项UNICODE）
+	* [输入]:
+	*   str: 输出字符串
+	* [返回值]:
+	*   转换后的字符串
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	wstring StringToWString(const string& str)
 	{
 		size_t len = str.size() * 2;// 预留字节数
@@ -505,7 +574,6 @@ namespace gcommon
 		delete[] p;// 释放申请的内存
 		return str1;
 	}
-
 	string WStringToString(const wstring& str)
 	{
 		size_t len = str.size() * 4;
@@ -519,7 +587,6 @@ namespace gcommon
 		delete[] p;
 		return str1;
 	}
-
 	tstring StringToTString(const string & str)
 	{
 #ifdef UNICODE	
@@ -528,7 +595,6 @@ namespace gcommon
 		return str;
 #endif
 	}
-
 	tstring WStringToTString(const wstring & str)
 	{
 #ifdef UNICODE	
@@ -537,7 +603,6 @@ namespace gcommon
 		return WStringToString(str);
 #endif
 	}
-
 	string TStringToString(const tstring & str)
 	{
 #ifdef UNICODE	
@@ -546,7 +611,6 @@ namespace gcommon
 		return str;
 #endif
 	}
-
 	wstring TStringToWString(const tstring & str)
 	{
 #ifdef UNICODE	
@@ -556,6 +620,18 @@ namespace gcommon
 #endif
 	}
 
+	/********************************************************************
+	* [函数名]: ReplaseAllSubString
+	* [描述]: 替换字符串中的指定子串
+	* [输入]:
+	*   str: （被修改）输入的字符串
+	*   src: 被替换的原子串
+	*   dst: 目标子串
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	void ReplaseAllSubString(string & str, const string & src, const string & dst)
 	{
 		size_t fd = string::npos;
@@ -564,7 +640,6 @@ namespace gcommon
 			str.replace(fd, src.size(), dst);
 		}
 	}
-
 	void ReplaseAllSubString(wstring & str, const wstring & src, const wstring & dst)
 	{
 		size_t fd = wstring::npos;
@@ -574,12 +649,38 @@ namespace gcommon
 		}
 	}
 
-	// 设置ini文件
+	/********************************************************************
+	* [函数名]: SetConfigInt
+	* [描述]: 修改配置文件指定配置项为某int值
+	* [输入]:
+	*   filename: 配置文件
+	*   key: 配置项
+	*   value: 值
+	*   title: 配置标头
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	void SetConfigInt(const tstring& filename, const tstring& key,
 		const int value, const tstring& title)
 	{
 		SetConfigString(filename, key, to_tstring(value), title);
 	}
+
+	/********************************************************************
+	* [函数名]: SetConfigString
+	* [描述]: 修改配置文件指定配置项为某string值
+	* [输入]:
+	*   filename: 配置文件
+	*   key: 配置项
+	*   value: 值
+	*   title: 配置标头
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	void SetConfigString(const tstring& filename, const tstring& key,
 		const tstring& value, const tstring& title)
 	{
@@ -666,7 +767,19 @@ namespace gcommon
 		delete[] newbuff;
 	}
 
-	// 从INI文件读取字符串类型数据
+	/********************************************************************
+	* [函数名]: GetConfigString
+	* [描述]: 从配置文件指定配置项读取字符串类型数据
+	* [输入]:
+	*   filename: 配置文件
+	*   key: 配置项
+	*   dft: 默认值
+	*   title: 配置标头
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	tstring GetConfigString(const tstring& filename, const tstring& key,
 		const tstring& dft, const tstring& title)
 	{
@@ -697,11 +810,9 @@ namespace gcommon
 						{
 							//注释行
 							if ('#' == szLine[0])
-							{
-							}
+							{}
 							else if ('/' == szLine[0] && '/' == szLine[1])
-							{
-							}
+							{}
 							else
 							{
 								fclose(fp);
@@ -735,12 +846,9 @@ namespace gcommon
 					{
 						//注释行
 						if ('#' == szLine[0])
-						{
-						}
+						{}
 						else if ('/' == szLine[0] && '/' == szLine[1])
-						{
-
-						}
+						{}
 						else
 						{
 							fclose(fp);
@@ -771,7 +879,19 @@ namespace gcommon
 		return dft;
 	}
 
-	//从INI文件读取整类型数据
+	/********************************************************************
+	* [函数名]: GetConfigInt
+	* [描述]: 从配置文件指定配置项读取整类型数据
+	* [输入]:
+	*   filename: 配置文件
+	*   key: 配置项
+	*   dft: 默认值
+	*   title: 配置标头
+	* [返回值]:
+	*   无
+	* [修改记录]:
+	*   2017-03-13,littledj: create
+	********************************************************************/
 	int GetConfigInt(const tstring& filename, const tstring& key,
 		const int dft, const tstring& title)
 	{
