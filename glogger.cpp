@@ -240,14 +240,19 @@ namespace gcommon
 
 		// 等待打印信号量（防止多线程同时打印时，相互间信息错位）
 		g_printMutex.lock();
+		if (m_enableColor)
+		{
 #ifdef __LINUX__
-		tcout << LINUX_COLOR[(uint16_t)color] << msg;
-		tcout << LINUX_COLOR[0]; // reset color
+			tcout << LINUX_COLOR[(uint16_t)color] << msg;
+			tcout << LINUX_COLOR[0]; // reset color
 #else // 默认为 WINDOWS
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)color);
-		tcout << msg;
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)m_defaultColor);
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)color);
+			tcout << msg;
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (uint16_t)m_defaultColor);
 #endif // __LINUX__
+		}
+		else
+			tcout << msg;
 		g_printMutex.unlock();// 释放打印信号量
 	}
 
@@ -287,8 +292,8 @@ namespace gcommon
 		tstring msg;
 		if (format.find('%') != tstring::npos)
 		{
-			tchar* msg_tmp = new tchar[format.length() + 1024];
-			vstprintf(msg_tmp, format.c_str(), ap);
+			tchar* msg_tmp = new tchar[format.length() + MAX_MESSAGE_LEN + 2];
+			vsntprintf(msg_tmp, MAX_MESSAGE_LEN + 2, format.c_str(), ap);
 			msg.assign(msg_tmp);
 			delete[] msg_tmp;
 		}
@@ -303,18 +308,10 @@ namespace gcommon
 		}
 
 		// 为了防止溢出，将信息截断为MAX_MSG_LEN
-		if (msg.length() > 1000)
+		if (msg.length() > MAX_MESSAGE_LEN)
 		{			
-			if (*(--msg.cend()) == '\n')
-			{
-				msg.erase(msg.begin() + 1000 - 3, msg.end());
-				msg.append(TEXT("..\n"));
-			}
-			else
-			{
-				msg.erase(msg.begin() + 1000, msg.end());
-				msg.append(TEXT("..."));
-			}
+			msg.erase(msg.begin() + MAX_MESSAGE_LEN - 4, msg.end());
+			msg.append(TEXT("...\n"));
 		}			
 		return msg;
 	}
@@ -375,11 +372,7 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::ERR, format, ap);
 		va_end(ap);
 
-		if (m_enableColor)	// 红色
-			output(msg, PRINT_COLOR::BRIGHT_RED);
-		else
-			output(msg);
-
+		output(msg, PRINT_COLOR::BRIGHT_RED);
 		saveToMessagePool(PRINT_TYPE::ERR, msg);
 	}	
 
@@ -396,11 +389,7 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::WARNING, format, ap);
 		va_end(ap);
 
-		if (m_enableColor)	// 黄色
-			output(msg, PRINT_COLOR::DARK_YELLOW);
-		else
-			output(msg);
-
+		output(msg, PRINT_COLOR::DARK_YELLOW);
 		saveToMessagePool(PRINT_TYPE::WARNING, msg);
 	}
 
@@ -417,11 +406,7 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::INFO, format, ap);
 		va_end(ap);	
 
-		if (m_enableColor)
-			output(msg, m_defaultColor);
-		else
-			output(msg);
-
+		output(msg, m_defaultColor);
 		saveToMessagePool(PRINT_TYPE::INFO, msg);
 	}
 
@@ -440,11 +425,8 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG1, format, ap);
 			va_end(ap);
 			
-			if (m_enableColor)	// 绿色
-				output(msg, PRINT_COLOR::DARK_GREEN);
-			else
-				output(msg);
-			//saveToMessagePool(PRINT_TYPE::DEBUG1, msg); //考虑性能问题
+			output(msg, PRINT_COLOR::DARK_GREEN);
+			saveToMessagePool(PRINT_TYPE::DEBUG1, msg); //考虑性能问题
 		}
 	}
 	void GLogger::debug2(const tstring format, ...)
@@ -456,11 +438,8 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG2, format, ap);
 			va_end(ap);
 
-			if (m_enableColor)	
-				output(msg, PRINT_COLOR::DARK_GREEN);
-			else
-				output(msg);
-			//saveToMessagePool(PRINT_TYPE::DEBUG2, msg);
+			output(msg, PRINT_COLOR::DARK_GREEN);
+			saveToMessagePool(PRINT_TYPE::DEBUG2, msg);
 		}
 	}
 	void GLogger::debug3(const tstring format, ...)
@@ -472,11 +451,8 @@ namespace gcommon
 			tstring msg = formatMsg_v(PRINT_TYPE::DEBUG3, format, ap);
 			va_end(ap);
 
-			if (m_enableColor)	
-				output(msg, PRINT_COLOR::DARK_GREEN);
-			else
-				output(msg);
-			//saveToMessagePool(PRINT_TYPE::DEBUG3, msg);
+			output(msg, PRINT_COLOR::DARK_GREEN);
+			saveToMessagePool(PRINT_TYPE::DEBUG3, msg);
 		}
 	}
 
@@ -493,11 +469,7 @@ namespace gcommon
 		tstring msg = formatMsg_v(PRINT_TYPE::RAW, format, ap);
 		va_end(ap);
 		
-		if (m_enableColor)
-			output_screen(msg, m_defaultColor);
-		else
-			output_screen(msg);
-
+		output_screen(msg, m_defaultColor);
 		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
@@ -587,11 +559,7 @@ namespace gcommon
 		tstring msg = formatMsg(PRINT_TYPE::RAW, TEXT("%s"), ct);
 		delete[] ct;
 
-		if (m_enableColor)
-			output(msg, color);
-		else
-			output(msg);
-
+		output(msg, color);
 		saveToMessagePool(PRINT_TYPE::RAW, msg);
 	}
 
@@ -619,11 +587,14 @@ namespace gcommon
 	* [修改记录]:
 	*   2015-05-27,littledj: create
 	********************************************************************/
-	void GLogger::clearMessagePool()
+	void GLogger::clear()
 	{
 		g_poolMutex.lock();
 		this->m_msgPoolCount = 0;
 		this->m_msgPoolPos = 0;
+		m_msg.clear();
+		m_warningmsg.clear();
+		m_errormsg.clear();
 		g_poolMutex.unlock();
 	}
 

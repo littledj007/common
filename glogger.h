@@ -85,64 +85,64 @@ namespace gcommon
 		void enableColor(bool para = true);
 		// 设置默认颜色
 		void setDefaultColor(PRINT_COLOR color = PRINT_COLOR::DARK_WHITE);
-		// 设置输出目标:屏幕
+		// [tested] 设置输出目标:屏幕
 		void setOnlyScreen();
-		// 设置输出目标：日志
+		// [tested] 设置输出目标：日志
 		void setOnlyLogfile();
-		// 设置输出目标：屏幕和日志
+		// [tested] 设置输出目标：屏幕和日志
 		void setTargetBoth();
 		// 设置输出
 		void setTarget(PRINT_TARGET target);
-		// 获取当前信息
+		// [tested] 获取当前信息
 		tstring getLastMsg();
-		// 获取错误信息
+		// [tested] 获取错误信息
 		tstring getLastError();
-		// 获取警告信息
+		// [tested] 获取警告信息
 		tstring getLastWarning();
 
-		// 设置名称
+		// [tested] 设置名称
 		void setHeader(const tstring header = TEXT("##"));
 
-		// 设置日志文件路径
+		// [tested] 设置日志文件路径
 		void setLogFile(const tstring logFile = TEXT(""));
 
-		// 设置调试信息等级
+		// [tested] 设置调试信息等级
 		void setDebugLevel(const int debugLevel = 0);
-		// 设置日志的调试信息等级
+		// [tested] 设置日志的调试信息等级
 		void setLogDebugLevel(const int debugLevel = 0);
 
-		// 输出错误信息
+		// [tested] 输出错误信息
 		void error(const tstring format, ...);
 
-		// 输出警告信息
+		// [tested] 输出警告信息
 		void warning(const tstring format, ...);
 
-		// 输出普通信息
+		// [tested] 输出普通信息
 		void info(const tstring format, ...);
 
-		// 只输出调试等级1的信息
+		// [tested] 只输出调试等级1的信息
 		void debug1(const tstring format, ...);
 
-		// 输出调试等级1/2的信息
+		// [tested] 输出调试等级1/2的信息
 		void debug2(const tstring format, ...);
 
-		// 输出调试等级1/2/3的信息
+		// [tested] 输出调试等级1/2/3的信息
 		void debug3(const tstring format, ...);
 
-		// 输出原始信息到屏幕（不添加任何前导字符）
+		// [tested] 输出原始信息到屏幕（不添加任何前导字符）
 		void screen(const tstring format, ...);
 
-		// 输出原始信息到日志（不添加任何前导字符）
+		// [tested] 输出原始信息到日志（不添加任何前导字符）
 		void logfile(const tstring format, ...);
 
-		// 插入当前时间
+		// [tested] 插入当前时间
 		void insertCurrentTime(tstring format = TEXT("** yyyy-MM-dd hh:mm:ss **\n"), 
 			PRINT_COLOR color = PRINT_COLOR::DARK_WHITE);
 
-		// 将消息池中的信息写入日志
+		// [tested] 将消息池中的信息写入日志
 		void logMessagePool();
-		// 清空消息池
-		void clearMessagePool();
+		// 清空消息池包括相关消息变量
+		void clear();
 
 	private:
 		// 线程安全的信息输出函数

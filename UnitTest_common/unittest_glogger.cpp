@@ -107,6 +107,34 @@ namespace UnitTest_common
 			Assert::AreEqual(TEXT("   [##] 2222\n"), glogger.getLastMsg().data());
 		}
 
+		TEST_METHOD(Test_getLastError)
+		{
+			glogger.setHeader(TEXT("##"));
+
+			glogger.info(TEXT("1111"));
+			Assert::IsTrue(glogger.getLastError().empty());
+
+			glogger.warning(TEXT("2222"));
+			Assert::IsTrue(glogger.getLastError().empty());
+
+			glogger.error(TEXT("3333"));
+			Assert::AreEqual(TEXT(" x [##] 3333\n"), glogger.getLastError().data());
+		}
+
+		TEST_METHOD(Test_getLastWarning)
+		{
+			glogger.setHeader(TEXT("##"));
+
+			glogger.info(TEXT("1111"));
+			Assert::IsTrue(glogger.getLastWarning().empty());
+
+			glogger.warning(TEXT("2222"));
+			Assert::AreEqual(TEXT(" ! [##] 2222\n"), glogger.getLastWarning().data());
+
+			glogger.error(TEXT("3333"));
+			Assert::AreEqual(TEXT(" x [##] 3333\n"), glogger.getLastWarning().data());
+		}
+
 		TEST_METHOD(Test_info)
 		{
 			glogger.setHeader(TEXT("##"));
@@ -166,9 +194,9 @@ namespace UnitTest_common
 				test_long_str_ret += TEXT("123456789 ");
 			}
 
-			test_max_str += TEXT("1234567..");
-			test_max_argstr += TEXT("12..");
-			test_long_str_ret += TEXT("123456789 123\n");
+			test_max_str += TEXT("123456...");
+			test_max_argstr += TEXT("1...");
+			test_long_str_ret += TEXT("123456789 123");
 
 			typedef struct _testset
 			{
@@ -196,7 +224,7 @@ namespace UnitTest_common
 			{
 				{ TEXT(""), TEXT("T1") },
 				{ TEXT("test"), TEXT("T2") },
-				{ TEXT("test %s"), TEXT("T3") },
+				{ TEXT("test (null)"), TEXT("T3") },
 				{ TEXT("test "), TEXT("T4") },
 				{ TEXT("test arg"), TEXT("T5") },
 				{ test_max_argstr, TEXT("T6") },
@@ -260,7 +288,7 @@ namespace UnitTest_common
 			{
 				{ TEXT("aaaa"), TEXT("T1") },
 				{ TEXT("bbbb"), TEXT("T2") },
-				{ TEXT("cccc %s"), TEXT("T3") },
+				{ TEXT("cccc (null)"), TEXT("T3") },
 				{ TEXT("dddd "), TEXT("T4") },
 				{ TEXT("eeee arg1"), TEXT("T5") },
 				{ TEXT("ffff arg2"), TEXT("T6") }
@@ -271,7 +299,7 @@ namespace UnitTest_common
 			_tremove(testlogfile.data());
 			glogger.setLogFile(testlogfile);			
 
-			glogger.clearMessagePool();
+			glogger.clear();
 			for each (TESTSET ts in test_set)
 			{
 				glogger.screen(ts.format, ts.arg);
@@ -315,9 +343,9 @@ namespace UnitTest_common
 				test_long_str_ret += TEXT("123456789 ");
 			}
 
-			test_max_str += TEXT("1234567...");
-			test_max_str_ret += TEXT("1234567..\n");
-			test_max_argstr += TEXT("12...");
+			test_max_str += TEXT("123456...\n");
+			test_max_str_ret += TEXT("123456...\n");
+			test_max_argstr += TEXT("1...\n");
 			test_long_str += TEXT("123456789 123");
 			test_long_str_ret += TEXT("123456789 123\n");
 
@@ -332,7 +360,7 @@ namespace UnitTest_common
 			Assert::AreEqual(TEXT("test"), glogger.getLastMsg().data());
 
 			glogger.screen(TEXT("test %s"), NULL);
-			Assert::AreEqual(TEXT("test %s"), glogger.getLastMsg().data());
+			Assert::AreEqual(TEXT("test (null)"), glogger.getLastMsg().data());
 
 			glogger.screen(TEXT("test %s"), TEXT(""));
 			Assert::AreEqual(TEXT("test "), glogger.getLastMsg().data());
@@ -354,36 +382,39 @@ namespace UnitTest_common
 		{
 			glogger.setHeader(TEXT("##"));
 
-			glogger.setDebugLevel(0);
-			glogger.info(TEXT("test"));
-			Assert::AreEqual(TEXT("   [##] test\n"), glogger.getLastMsg().data());
+			glogger.setDebugLevel(0);			
 			glogger.debug1(TEXT("test"));
 			Assert::IsTrue(glogger.getLastMsg().empty());
 			glogger.debug2(TEXT("test"));
 			Assert::IsTrue(glogger.getLastMsg().empty());
 			glogger.debug3(TEXT("test"));
 			Assert::IsTrue(glogger.getLastMsg().empty());
+			glogger.info(TEXT("test"));
+			Assert::AreEqual(TEXT("   [##] test\n"), glogger.getLastMsg().data());
 
-			glogger.setDebugLevel(1);
+			glogger.clear();
+			glogger.setDebugLevel(1);			
+			glogger.debug2(TEXT("test"));
+			Assert::IsTrue(glogger.getLastMsg().empty());
+			glogger.debug3(TEXT("test"));
+			Assert::IsTrue(glogger.getLastMsg().empty());
 			glogger.info(TEXT("test"));
 			Assert::AreEqual(TEXT("   [##] test\n"), glogger.getLastMsg().data());
 			glogger.debug1(TEXT("test"));
 			Assert::AreEqual(TEXT("+1 [##] test\n"), glogger.getLastMsg().data());
-			glogger.debug2(TEXT("test"));
-			Assert::IsTrue(glogger.getLastMsg().empty());
+
+			glogger.clear();
+			glogger.setDebugLevel(2);			
 			glogger.debug3(TEXT("test"));
 			Assert::IsTrue(glogger.getLastMsg().empty());
-
-			glogger.setDebugLevel(2);
 			glogger.info(TEXT("test"));
 			Assert::AreEqual(TEXT("   [##] test\n"), glogger.getLastMsg().data());
 			glogger.debug1(TEXT("test"));
 			Assert::AreEqual(TEXT("+1 [##] test\n"), glogger.getLastMsg().data());
 			glogger.debug2(TEXT("test"));
 			Assert::AreEqual(TEXT("+2 [##] test\n"), glogger.getLastMsg().data());
-			glogger.debug3(TEXT("test"));
-			Assert::IsTrue(glogger.getLastMsg().empty());
 
+			glogger.clear();
 			glogger.setDebugLevel(3);
 			glogger.info(TEXT("test"));
 			Assert::AreEqual(TEXT("   [##] test\n"), glogger.getLastMsg().data());
@@ -534,7 +565,27 @@ namespace UnitTest_common
 
 		TEST_METHOD(Test_setOnlyLogfile)
 		{
-			Assert::IsTrue(false, L"no test");
+			tstring testlogfile = TEXT("testlog.log");
+			glogger.setLogFile(testlogfile);
+			glogger.setHeader(TEXT("##"));
+
+			_tremove(testlogfile.data());
+			glogger.setOnlyLogfile();
+			glogger.info(TEXT("logtest"));
+			tifstream infile(testlogfile);
+			if (infile.bad())
+			{
+				_tremove(testlogfile.data());
+				Assert::IsTrue(false);
+				return;
+			}
+
+			tchar line[81];
+			infile.getline(line, 80, TEXT('\n'));
+			Assert::AreEqual(TEXT("   [##] logtest"), line);
+
+			infile.close();
+			_tremove(testlogfile.data());
 		}
 
 		TEST_METHOD(Test_setTargetBoth)
