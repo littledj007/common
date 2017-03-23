@@ -18,13 +18,35 @@ using namespace gcommon;
 
 namespace UnitTest_common
 {
-	TEST_CLASS(UnitTest_Common)
+	TEST_CLASS(UnitTest_common)
 	{
 	public:
 
-		TEST_METHOD(Test_ByteBuffer1)
+		TEST_METHOD(Test_htons)
 		{
-			Assert::IsTrue(false, L"no test");
+			Assert::AreEqual((short)0x1234, (short)g_htons(0x3412));
+			Assert::AreEqual((short)0xeeff, (short)g_htons(0xffee));
 		}
+		TEST_METHOD(Test_ntohs)
+		{
+			Assert::AreEqual((short)0x1234, (short)g_ntohs(0x3412));
+			Assert::AreEqual((short)0xeeff, (short)g_ntohs(0xffee));
+		}
+		TEST_METHOD(Test_htonl)
+		{
+			Assert::AreEqual((unsigned int)0x12345678, g_htonl(0x78563412));
+			Assert::AreEqual((unsigned int)0xccddeeff, g_htonl(0xffeeddcc));
+		}
+		TEST_METHOD(Test_ntohl)
+		{
+			Assert::AreEqual((unsigned int)0x12345678, g_ntohl(0x78563412));
+			Assert::AreEqual((unsigned int)0xccddeeff, g_ntohl(0xffeeddcc));
+		}
+
+		TEST_METHOD(Test_GetParaFromARG)
+		{
+
+		}
+
 	};
 }
