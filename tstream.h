@@ -40,6 +40,7 @@ namespace gcommon
 #define vstprintf vswprintf
 #define vsntprintf vswprintf
 #define stprintf swprintf
+#define sntprintf swprintf
 #define tcslen wcslen 
 #define tcscpy wcscpy 
 #define tcsstr wcsstr
@@ -96,6 +97,7 @@ namespace gcommon
 #define vstprintf vsprintf
 #define vsntprintf vsnprintf
 #define stprintf sprintf
+#define sntprintf snprintf
 #define tcslen strlen
 #define tcscpy strcpy 
 #define tcsstr strstr
