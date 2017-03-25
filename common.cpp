@@ -70,24 +70,27 @@ namespace gcommon
 	* [输入]
 	*   argc：参数数量
 	*   argv：参数列表
-	*   prefix：参数前导符，可以为NULL或者空字符串""
+	*   prefix：参数前导符，为NULL或者空字符串表示忽略前导符
 	*   pos：指定是第几个符合条件的参数，从1开始
 	* [输出]
 	*   out：获取的参数（无需释放）
+	*        成功，则返回前导符后面的字符串
+	*        只有prefix，则返回空字符串TEXT("")
+	*        失败，则返回NULL
 	* [返回值]
 	*   >0：成功，符合条件的参数数量
-	*   0：失败，参数错误
-	*   -1：失败，未找到prefix
-	*   -2：失败，找到prefix，但后面无参数
+	*   0：失败
 	* [修改记录]
 	*   2013-12-09,littledj: create
 	*   2014-04-08,littledj: 单元测试，并修改
+	*   2017-03-25,littledj: 调整返回值，重构单元测试
 	*********************************************************************/
 	int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos)
 	{
-		int count = 0;
+		int count = 0, pcount = 0;
 		bool bFind = false;
 		bool bFindPrefix = false;
+		out = NULL;
 
 		// 参数检查
 		if (argv == NULL || pos <= 0 ||
@@ -96,80 +99,74 @@ namespace gcommon
 		if (prefix != NULL && prefix[0] != '-' && prefix[0] != 0)	//	前导符必须以'-'开始
 			return 0;
 
-		for (int i = 1; i < argc; i++)
+		for (int i = 0; i < argc; i++)
 		{
 			// 参数为空
-			if (argv[i] == NULL) return 0;
+			if (argv[i] == NULL)
+				break;
 
 			// 去除起始空格
 			while (argv[i][0] == ' ')
 			{
 				argv[i] += 1;
-				if (argv[i][0] == 0) break;
+				if (argv[i][0] == 0) 
+					break;
 			}
-			if (argv[i][0] == 0) continue;
+			if (argv[i][0] == 0) 
+				continue;
 
 			// 寻找无前导参数
 			if (prefix == NULL || prefix[0] == 0)
 			{
 				if (argv[i][0] != '-')	// 参数不应该以‘-’作为第一个字符
 				{
-					count++;
-					if (count == pos)
+					if (++count == pos)
 					{
 						out = argv[i];
 						bFind = true;
 					}
-				}
-				else
-				{
-					i++; // 判断为前导符，跳过一个参数
 				}
 			}
 			else if (tcsncmp(argv[i], prefix, tcslen(prefix)) == 0 &&	// 寻找指定前导参数
 				tcslen(argv[i]) == tcslen(prefix))
 			{
-				bFindPrefix = true;
+				if( ++pcount == pos)
+					bFindPrefix = true;
 				do
 				{
-					if (++i == argc)	// 判断后面是否还有参数
-					{
-						if (bFind) return count;
-						else return -2;
-					}
-					if (argv[i] == NULL) return 0;	// 参数为空
-
-													// 去除起始空格
+					// 判断后面是否还有参数
+					if (++i == argc || argv[i] == NULL)
+						break;
+					
+					// 去除起始空格
 					while (argv[i][0] == ' ')
 					{
 						argv[i] += 1;
-						if (argv[i][0] == 0) break;
+						if (argv[i][0] == 0) 
+							break;
 					}
 				} while (argv[i][0] == 0);
+
+				if (i == argc || argv[i] == NULL)
+					break;
 
 				// 判断后面的参数是否还是前导符
 				if (argv[i][0] != '-')
 				{
-					count++;
-					if (pos == count)
+					if (++count == pos)
 					{
 						bFind = true;
 						out = argv[i];
 					}
 				}
-				else
-				{
-					i++;
-				}
 			}
 		}
 
 		if (bFind)
-			return count;	// 找到符合条件的参数
+			return count - pos + 1;	// 符合条件的个数
 		else if (bFindPrefix)
-			return -2;		// 只找到前导符
-		else
-			return -1;		// 什么也没找到
+			out = TEXT("");
+		return 0;
 	}
 
 	/********************************************************************
@@ -220,10 +217,10 @@ namespace gcommon
 
 	/********************************************************************
 	* [函数名]: random
-	* [描述]: 在[start,end)内(不包end, 最大0xffffffff)获取一个随机整数,start>0
+	* [描述]: 在[start,end]内(最大0xffffffff)获取一个随机整数,start>0
 	* [输入]:
 	*   start: 随机数开始位置
-	*   end: 随机数结束位置（不包括）
+	*   end: 随机数结束位置
 	* [返回值]: uint32_t
 	*   生成的随机数
 	* [修改记录]:
@@ -255,7 +252,7 @@ namespace gcommon
 			(r3 & 0x000000ff) << 16 |
 			(r4 & 0x000000ff) << 24;
 		double rate = (end - start)*1.0 / (uint32_t)0xFFFFFFFF;
-		uint32_t delta = (uint32_t)(rate * (uint32_t)rr);
+		uint32_t delta = (uint32_t)(rate * (uint32_t)rr + 0.5); // 四舍五入
 		return start + delta;
 	}
 
@@ -294,19 +291,17 @@ namespace gcommon
 	* [修改记录]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
-	uint32_t inet_ttol(const tchar* strIP)
+	uint32_t inet_ttol(const wchar_t * strIP)
 	{
-		if (strIP == NULL)
-		{
+		if (strIP == NULL || strIP[0] == 0)
 			return 0;
-		}
 
 		uint32_t ip = 0;
-		size_t ip_len = tcslen(strIP);
+		size_t ip_len = wcslen(strIP);
 		size_t data_len = 0;
 		size_t pos = 0;
-		tchar* strIPTmp = new tchar[ip_len + 1];
-		tcscpy(strIPTmp, strIP);
+		wchar_t* strIPTmp = new wchar_t[ip_len + 1];
+		wcscpy(strIPTmp, strIP);
 		for (size_t i = 0; i < ip_len; i++)
 		{
 			if (strIPTmp[i] == '.')
@@ -315,29 +310,82 @@ namespace gcommon
 			}
 		}
 
-		data_len = tcslen(strIPTmp + pos);
-		ip |= (uint8_t)ttoi(strIPTmp + pos);
+		data_len = wcslen(strIPTmp + pos);
+		ip |= (uint8_t)_wtoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = tcslen(strIPTmp + pos);
-		ip |= (uint8_t)ttoi(strIPTmp + pos);
+		data_len = wcslen(strIPTmp + pos);
+		ip |= (uint8_t)_wtoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = tcslen(strIPTmp + pos);
-		ip |= (uint8_t)ttoi(strIPTmp + pos);
+		data_len = wcslen(strIPTmp + pos);
+		ip |= (uint8_t)_wtoi(strIPTmp + pos);
 		ip <<= 8;
 		pos += data_len; pos++;	// skip '\0'
 		if (pos >= ip_len)
 			goto convert_end;
 
-		data_len = tcslen(strIPTmp + pos);
-		ip |= (uint8_t)ttoi(strIPTmp + pos);
+		data_len = wcslen(strIPTmp + pos);
+		ip |= (uint8_t)_wtoi(strIPTmp + pos);
+		pos += data_len;
+		if (pos == ip_len)
+		{
+			delete[] strIPTmp;
+			return g_ntohl(ip);
+		}
+
+	convert_end:
+		delete[] strIPTmp;
+		return 0;
+	}
+	uint32_t inet_ttol(const char* strIP)
+	{
+		if (strIP == NULL || strIP[0] == 0)
+			return 0;
+
+		uint32_t ip = 0;
+		size_t ip_len = strlen(strIP);
+		size_t data_len = 0;
+		size_t pos = 0;
+		char* strIPTmp = new char[ip_len + 1];
+		strcpy(strIPTmp, strIP);
+		for (size_t i = 0; i < ip_len; i++)
+		{
+			if (strIPTmp[i] == '.')
+			{
+				strIPTmp[i] = 0;
+			}
+		}
+
+		data_len = strlen(strIPTmp + pos);
+		ip |= (uint8_t)atoi(strIPTmp + pos);
+		ip <<= 8;
+		pos += data_len; pos++;	// skip '\0'
+		if (pos >= ip_len)
+			goto convert_end;
+
+		data_len = strlen(strIPTmp + pos);
+		ip |= (uint8_t)atoi(strIPTmp + pos);
+		ip <<= 8;
+		pos += data_len; pos++;	// skip '\0'
+		if (pos >= ip_len)
+			goto convert_end;
+
+		data_len = strlen(strIPTmp + pos);
+		ip |= (uint8_t)atoi(strIPTmp + pos);
+		ip <<= 8;
+		pos += data_len; pos++;	// skip '\0'
+		if (pos >= ip_len)
+			goto convert_end;
+
+		data_len = strlen(strIPTmp + pos);
+		ip |= (uint8_t)atoi(strIPTmp + pos);
 		pos += data_len;
 		if (pos == ip_len)
 		{
@@ -369,8 +417,7 @@ namespace gcommon
 			return NULL;
 		}
 
-		size_t data_len = wcslen(data);
-		if (len) data_len = len;
+		size_t data_len = len == 0 ? wcslen(data) : len;
 		char* retData = new char[data_len + 1];
 		for (size_t i = 0; i < data_len; i++)
 		{
@@ -400,8 +447,7 @@ namespace gcommon
 			return NULL;
 		}
 
-		size_t data_len = strlen(data);
-		if (len) data_len = len;
+		size_t data_len = len == 0 ? strlen(data) : len;		
 		wchar_t* retData = new wchar_t[data_len + 1];
 		for (size_t i = 0; i < data_len; i++)
 		{
