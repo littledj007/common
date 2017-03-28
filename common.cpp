@@ -291,6 +291,7 @@ namespace gcommon
 	* [ÐÞ¸Ä¼ÇÂ¼]:
 	*   2014-12-17,littledj: create
 	********************************************************************/
+#ifndef __LINUX__
 	uint32_t inet_ttol(const wchar_t * strIP)
 	{
 		if (strIP == NULL || strIP[0] == 0)
@@ -344,6 +345,12 @@ namespace gcommon
 		delete[] strIPTmp;
 		return 0;
 	}
+#else
+	uint32_t inet_ttol(const wchar_t * strIP)
+	{
+		return 0;
+	}
+#endif
 	uint32_t inet_ttol(const char* strIP)
 	{
 		if (strIP == NULL || strIP[0] == 0)

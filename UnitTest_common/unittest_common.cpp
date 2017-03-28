@@ -170,39 +170,39 @@ namespace UnitTest_common
 		}
 		TEST_METHOD(Test_SplitString)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_TrimString)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_RemoveAllChar)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_ReplaseAllSubString)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_GetConfigString)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_GetConfigInt)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_SetConfigString)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_SetConfigInt)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 		TEST_METHOD(Test_DeleteEmptyItems)
 		{
-
+			Assert::Fail(TEXT("no test"));
 		}
 	};
 }
