@@ -261,12 +261,13 @@ namespace gcommon
 	* [描述]: 将long类型的ip地址转换成字符串（xxx.xxx.xxx.xx）
 	* [输入]:
 	*   ip：ip地址
-	* [返回值]: tchar
+	* [返回值]: string
 	*   转换后的ip地址字符串
 	* [修改记录]:
 	*   2014-12-17,littledj: create
+	*   2017-03-28,littledj: change rettype to string
 	********************************************************************/
-	tchar* inet_ltot(uint32_t ip)
+	string inet_ltoi(uint32_t ip)
 	{
 		uint8_t chIP[4];
 		chIP[0] = (uint8_t)(ip);
@@ -274,11 +275,33 @@ namespace gcommon
 		chIP[2] = (uint8_t)(ip >> 16);
 		chIP[3] = (uint8_t)(ip >> 24);
 
-		static tchar strIP[16];
-		memset(strIP, 0, 16 * sizeof(tchar));
+		static char strIP[16];
+		memset(strIP, 0, 16 * sizeof(char));
 
-		stprintf(strIP, TEXT("%u.%u.%u.%u"), chIP[0], chIP[1], chIP[2], chIP[3]);
-		return strIP;
+		sprintf(strIP, "%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
+		return string(strIP);
+	}
+	wstring inet_ltow(uint32_t ip)
+	{
+		uint8_t chIP[4];
+		chIP[0] = (uint8_t)(ip);
+		chIP[1] = (uint8_t)(ip >> 8);
+		chIP[2] = (uint8_t)(ip >> 16);
+		chIP[3] = (uint8_t)(ip >> 24);
+
+		static wchar_t strIP[16];
+		memset(strIP, 0, 16 * sizeof(char));
+
+		_swprintf(strIP, L"%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
+		return wstring(strIP);
+	}
+	tstring inet_ltot(uint32_t ip)
+	{
+#ifdef UNICODE
+		return inet_ltow(ip);
+#else
+		return inet_ltoi(ip);
+#endif
 	}
 
 	/********************************************************************

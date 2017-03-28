@@ -115,8 +115,10 @@ namespace UnitTest_common
 		}
 		TEST_METHOD(Test_inet_ltot)
 		{
-			Assert::AreEqual(TEXT("4.3.2.1"), gcommon::inet_ltot(0x01020304));
-			Assert::AreEqual(TEXT("244.243.242.241"), gcommon::inet_ltot(0xf1f2f3f4));
+			tstring ip1 = gcommon::inet_ltot(0x01020304);
+			tstring ip2 = gcommon::inet_ltot(0xf1f2f3f4);
+			Assert::AreEqual(TEXT("4.3.2.1"), ip1.c_str());
+			Assert::AreEqual(TEXT("244.243.242.241"), ip2.c_str());
 		}
 		TEST_METHOD(Test_inet_ttol)
 		{
