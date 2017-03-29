@@ -275,7 +275,7 @@ namespace gcommon
 		chIP[2] = (uint8_t)(ip >> 16);
 		chIP[3] = (uint8_t)(ip >> 24);
 
-		static char strIP[16];
+		char strIP[16];
 		memset(strIP, 0, 16 * sizeof(char));
 
 		sprintf(strIP, "%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
@@ -289,10 +289,10 @@ namespace gcommon
 		chIP[2] = (uint8_t)(ip >> 16);
 		chIP[3] = (uint8_t)(ip >> 24);
 
-		static wchar_t strIP[16];
-		memset(strIP, 0, 16 * sizeof(char));
+		wchar_t strIP[16];
+		memset(strIP, 0, 16 * sizeof(wchar_t));
 
-		_swprintf(strIP, L"%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
+		swprintf(strIP, 16, L"%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
 		return wstring(strIP);
 	}
 	tstring inet_ltot(uint32_t ip)
