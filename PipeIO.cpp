@@ -1,5 +1,5 @@
 // pipeio.cpp
-// 命名管道类，负责创建命名管道，并能够从管道中读取数据	
+// 命名管道类，负责创建命名管道，并能够从管道中读取数据    
 // 2013-11-28,littledj: CPipeIO类不再依赖于pipeInterface
 // 需要包含：Advapi32.lib
 
@@ -11,9 +11,9 @@
 
 CPipeIO::CPipeIO()
 {
-	m_PipeName.clear();
-	m_hPipe = INVALID_HANDLE_VALUE;
-	m_bInit = false;
+    m_PipeName.clear();
+    m_hPipe = INVALID_HANDLE_VALUE;
+    m_bInit = false;
 }
 
 /********************************************************************/
@@ -25,9 +25,9 @@ CPipeIO::CPipeIO()
 /********************************************************************/
 CPipeIO::CPipeIO(const tstring& pipeName)
 {
-	m_PipeName = pipeName;
-	m_hPipe = INVALID_HANDLE_VALUE;
-	m_bInit = false;
+    m_PipeName = pipeName;
+    m_hPipe = INVALID_HANDLE_VALUE;
+    m_bInit = false;
 }
 
 /********************************************************************/
@@ -35,12 +35,12 @@ CPipeIO::CPipeIO(const tstring& pipeName)
 /********************************************************************/
 CPipeIO::~CPipeIO()
 {
-	if (m_hPipe)
-	{
-		CloseHandle(m_hPipe);
-		m_hPipe = NULL;
-	}
-		
+    if (m_hPipe)
+    {
+        CloseHandle(m_hPipe);
+        m_hPipe = NULL;
+    }
+        
 }
 
 /********************************************************************/
@@ -56,33 +56,33 @@ CPipeIO::~CPipeIO()
 /********************************************************************/
 bool CPipeIO::CreatePipe(const tstring& pipeName)
 {
-	// 参数检查
-	if(pipeName.empty() || 
-		pipeName.length() > MAX_PIPENAME_LEN)
-		return false;
-	m_PipeName = pipeName;
+    // 参数检查
+    if(pipeName.empty() || 
+        pipeName.length() > MAX_PIPENAME_LEN)
+        return false;
+    m_PipeName = pipeName;
 
-	// 创建命令管道
-	SECURITY_ATTRIBUTES secAttrib;
-	SECURITY_DESCRIPTOR sd;
-	InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );  // Advapi32.lib
-	SetSecurityDescriptorDacl( &sd, true, NULL, false );                // Advapi32.lib
-	secAttrib.bInheritHandle= true;
-	secAttrib.nLength= sizeof(SECURITY_ATTRIBUTES);
-	secAttrib.lpSecurityDescriptor= &sd;	
-	m_hPipe = CreateNamedPipe( m_PipeName.c_str(), 
-		PIPE_ACCESS_DUPLEX,
-		PIPE_READMODE_MESSAGE|PIPE_TYPE_MESSAGE|PIPE_WAIT,
-		1,
-		0, 
-		0,
-		5000,
-		&secAttrib);
-	if( INVALID_HANDLE_VALUE == m_hPipe )
-		return false;
+    // 创建命令管道
+    SECURITY_ATTRIBUTES secAttrib;
+    SECURITY_DESCRIPTOR sd;
+    InitializeSecurityDescriptor( &sd, SECURITY_DESCRIPTOR_REVISION );  // Advapi32.lib
+    SetSecurityDescriptorDacl( &sd, true, NULL, false );                // Advapi32.lib
+    secAttrib.bInheritHandle= true;
+    secAttrib.nLength= sizeof(SECURITY_ATTRIBUTES);
+    secAttrib.lpSecurityDescriptor= &sd;    
+    m_hPipe = CreateNamedPipe( m_PipeName.c_str(), 
+        PIPE_ACCESS_DUPLEX,
+        PIPE_READMODE_MESSAGE|PIPE_TYPE_MESSAGE|PIPE_WAIT,
+        1,
+        0, 
+        0,
+        5000,
+        &secAttrib);
+    if( INVALID_HANDLE_VALUE == m_hPipe )
+        return false;
 
-	m_bInit = true;
-	return true;
+    m_bInit = true;
+    return true;
 }
 
 /********************************************************************/
@@ -98,21 +98,21 @@ bool CPipeIO::CreatePipe(const tstring& pipeName)
 /********************************************************************/
 bool CPipeIO::OpenPipe(const tstring& pipeName)
 {
-	// 参数检查
-	if (pipeName.empty() ||
-		pipeName.length() > MAX_PIPENAME_LEN)
-		return false;
-	m_PipeName = pipeName;
+    // 参数检查
+    if (pipeName.empty() ||
+        pipeName.length() > MAX_PIPENAME_LEN)
+        return false;
+    m_PipeName = pipeName;
 
-	// 打开命名管道		
-	m_hPipe = CreateFile( m_PipeName.c_str(),
-		GENERIC_READ|GENERIC_WRITE,0,NULL,
-		OPEN_EXISTING,0,NULL);
-	if(m_hPipe == INVALID_HANDLE_VALUE)
-		return false;
+    // 打开命名管道        
+    m_hPipe = CreateFile( m_PipeName.c_str(),
+        GENERIC_READ|GENERIC_WRITE,0,NULL,
+        OPEN_EXISTING,0,NULL);
+    if(m_hPipe == INVALID_HANDLE_VALUE)
+        return false;
 
-	m_bInit = true;
-	return true;
+    m_bInit = true;
+    return true;
 }
 
 /********************************************************************/
@@ -132,24 +132,24 @@ bool CPipeIO::OpenPipe(const tstring& pipeName)
 /*   2013-12-04,littledj: 删除ConnectNamedPipe和DisconnectNamedPipe相关操作
 /********************************************************************/
 bool CPipeIO::ReadPipe(char* buff,uint32_t len,uint32_t& nRead,uint32_t dwTimeout)
-{	
-	// 参数检查
-	if (!m_bInit)
-		return false;
-	if(m_hPipe == NULL || buff == NULL || len == 0)
-		return false;
+{    
+    // 参数检查
+    if (!m_bInit)
+        return false;
+    if(m_hPipe == NULL || buff == NULL || len == 0)
+        return false;
 
-	uint32_t t=0;
-	while( !ReadFile( m_hPipe, buff, len, (LPDWORD)&nRead, NULL ) )
-	{
-		Sleep(IDLE_TIME);
-		t += IDLE_TIME;
-		if (t>dwTimeout)	// 读取管道信息超时
-		{
-			return false;
-		}
-	}
-	return true;
+    uint32_t t=0;
+    while( !ReadFile( m_hPipe, buff, len, (LPDWORD)&nRead, NULL ) )
+    {
+        Sleep(IDLE_TIME);
+        t += IDLE_TIME;
+        if (t>dwTimeout)    // 读取管道信息超时
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 /********************************************************************/
@@ -168,23 +168,23 @@ bool CPipeIO::ReadPipe(char* buff,uint32_t len,uint32_t& nRead,uint32_t dwTimeou
 /********************************************************************/
 bool CPipeIO::WritePipe( char* data, uint32_t len, uint32_t& nWrite, uint32_t dwTimeOut )
 {
-	// 参数检查
-	if (!m_bInit)
-		return false;
-	if(m_hPipe == NULL || data == NULL || len == 0)
-		return false;
+    // 参数检查
+    if (!m_bInit)
+        return false;
+    if(m_hPipe == NULL || data == NULL || len == 0)
+        return false;
 
-	uint32_t t=0;
-	while (!WriteFile(m_hPipe, data, len, (LPDWORD)&nWrite, NULL))
-	{
-		Sleep(IDLE_TIME);
-		t += IDLE_TIME;
-		if (t>dwTimeOut)	// 读取管道信息超时
-		{
-			return false;
-		}
-	}	
-	return true;
+    uint32_t t=0;
+    while (!WriteFile(m_hPipe, data, len, (LPDWORD)&nWrite, NULL))
+    {
+        Sleep(IDLE_TIME);
+        t += IDLE_TIME;
+        if (t>dwTimeOut)    // 读取管道信息超时
+        {
+            return false;
+        }
+    }    
+    return true;
 }
 
 /********************************************************************/
@@ -195,11 +195,11 @@ bool CPipeIO::WritePipe( char* data, uint32_t len, uint32_t& nWrite, uint32_t dw
 /********************************************************************/
 void CPipeIO::Close()
 {
-	if (m_bInit)
-	{
-		CloseHandle(m_hPipe);
-		m_hPipe = INVALID_HANDLE_VALUE;
-	}
+    if (m_bInit)
+    {
+        CloseHandle(m_hPipe);
+        m_hPipe = INVALID_HANDLE_VALUE;
+    }
 }
 
 /********************************************************************/
@@ -210,10 +210,10 @@ void CPipeIO::Close()
 /********************************************************************/
 void CPipeIO::Disconnect()
 {
-	if (m_bInit)
-	{
-		DisconnectNamedPipe(m_hPipe);
-	}
+    if (m_bInit)
+    {
+        DisconnectNamedPipe(m_hPipe);
+    }
 }
 
 /********************************************************************/
@@ -224,10 +224,10 @@ void CPipeIO::Disconnect()
 /********************************************************************/
 void CPipeIO::Connect()
 {
-	if (m_bInit)
-	{
-		ConnectNamedPipe(m_hPipe,NULL);
-	}
+    if (m_bInit)
+    {
+        ConnectNamedPipe(m_hPipe,NULL);
+    }
 }
 
 /********************************************************************/
@@ -237,7 +237,7 @@ void CPipeIO::Connect()
 /*   2013-12-04,littledj: create 
 /********************************************************************/
 BOOL CPipeIO::Wait(const tstring& pipeName, uint32_t dwTimeout)
-{	
-	return WaitNamedPipe(pipeName.c_str(),dwTimeout);
+{    
+    return WaitNamedPipe(pipeName.c_str(),dwTimeout);
 }
 
