@@ -47,7 +47,7 @@ namespace UnitTest_common
 			typedef struct _testset
 			{
 				int argc;
-				tchar* argv[10] = {NULL};
+				tchar* argv[10] = { NULL };
 				tchar* prefix;
 				int pos;
 			}TESTSET;
@@ -60,6 +60,7 @@ namespace UnitTest_common
 
 			TESTSET test_set[] =
 			{
+				// argc, argv[], prefix, pos
 				{ 1,{ NULL }, TEXT("-a"), 1 },
 				{ 4,{ TEXT("-a"), TEXT("aa"), TEXT("-b"), TEXT("bb") }, NULL, 1 },
 				{ 4,{ TEXT("-a"), TEXT("aa"), TEXT("-b"), TEXT("bb") }, TEXT(""), 1 },
@@ -83,6 +84,7 @@ namespace UnitTest_common
 
 			RESULTSET result_set[] =
 			{
+				// ret, out, test_id
 				{ 0, NULL, TEXT("T1") },
 				{ 2, TEXT("aa"), TEXT("T2") },
 				{ 2, TEXT("aa"), TEXT("T3") },
@@ -140,8 +142,8 @@ namespace UnitTest_common
 			Assert::AreEqual((uint32_t)0, gcommon::random(0, 0));
 			Assert::AreEqual((uint32_t)100, gcommon::random(100, 100));
 			Assert::AreEqual((uint32_t)10, gcommon::random(10, 9));
-			
-			vector<uint32_t> rands;		
+
+			vector<uint32_t> rands;
 			for (size_t i = 0; i < 1000; i++)
 			{
 				rands.push_back(gcommon::random(0, 100));
@@ -152,7 +154,7 @@ namespace UnitTest_common
 			{
 				Assert::IsTrue(rands.end() != find(rands.begin(), rands.end(), i));
 			}
-			
+
 		}
 		TEST_METHOD(Test_wtoa)
 		{
@@ -172,19 +174,181 @@ namespace UnitTest_common
 		}
 		TEST_METHOD(Test_SplitString)
 		{
-			Assert::Fail(TEXT("no test"));
+			//Assert::AreEqual((size_t)0, gcommon::SplitString(NULL,' ').size());
+			Assert::AreEqual((size_t)0, gcommon::SplitString("", ' ').size());
+			Assert::AreEqual((size_t)1, gcommon::SplitString("abcde", 0).size());
+			Assert::AreEqual("abcde", gcommon::SplitString("abcde", 0).at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString("abcde", ' ').size());
+			Assert::AreEqual("abcde", gcommon::SplitString("abcde", ' ').at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString("abcde", 'a').size());
+			Assert::AreEqual("bcde", gcommon::SplitString("abcde", 'a').at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString("abcde", 'e').size());
+			Assert::AreEqual("abcd", gcommon::SplitString("abcde", 'e').at(0).c_str());
+			Assert::AreEqual((size_t)2, gcommon::SplitString("abcbe", 'c').size());
+			Assert::AreEqual("ab", gcommon::SplitString("abcde", 'c').at(0).c_str());
+			Assert::AreEqual("de", gcommon::SplitString("abcde", 'c').at(1).c_str());
+			Assert::AreEqual((size_t)3, gcommon::SplitString("abcbe", 'b').size());
+			Assert::AreEqual("a", gcommon::SplitString("abcbe", 'b').at(0).c_str());
+			Assert::AreEqual("c", gcommon::SplitString("abcbe", 'b').at(1).c_str());
+			Assert::AreEqual("e", gcommon::SplitString("abcbe", 'b').at(2).c_str());
+
+			Assert::AreEqual((size_t)0, gcommon::SplitString(L"", ' ').size());
+			Assert::AreEqual((size_t)1, gcommon::SplitString(L"abcde", 0).size());
+			Assert::AreEqual(L"abcde", gcommon::SplitString(L"abcde", 0).at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString(L"abcde", ' ').size());
+			Assert::AreEqual(L"abcde", gcommon::SplitString(L"abcde", ' ').at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString(L"abcde", 'a').size());
+			Assert::AreEqual(L"bcde", gcommon::SplitString(L"abcde", 'a').at(0).c_str());
+			Assert::AreEqual((size_t)1, gcommon::SplitString(L"abcde", 'e').size());
+			Assert::AreEqual(L"abcd", gcommon::SplitString(L"abcde", 'e').at(0).c_str());
+			Assert::AreEqual((size_t)2, gcommon::SplitString(L"abcbe", 'c').size());
+			Assert::AreEqual(L"ab", gcommon::SplitString(L"abcde", 'c').at(0).c_str());
+			Assert::AreEqual(L"de", gcommon::SplitString(L"abcde", 'c').at(1).c_str());
+			Assert::AreEqual((size_t)3, gcommon::SplitString(L"abcbe", 'b').size());
+			Assert::AreEqual(L"a", gcommon::SplitString(L"abcbe", 'b').at(0).c_str());
+			Assert::AreEqual(L"c", gcommon::SplitString(L"abcbe", 'b').at(1).c_str());
+			Assert::AreEqual(L"e", gcommon::SplitString(L"abcbe", 'b').at(2).c_str());
 		}
 		TEST_METHOD(Test_TrimString)
 		{
-			Assert::Fail(TEXT("no test"));
+			string test_set[] = {
+				"",
+				" ",
+				" a b c",
+				"a b c ",
+				" a b c ",
+			};
+			string result_set[] = {
+				"",
+				"",
+				"a b c",
+				"a b c",
+				"a b c",
+			};
+			for (size_t i = 0; i < 5; i++)
+			{
+				string& ret = gcommon::TrimString(test_set[i], ' ');
+				Assert::AreSame(ret, test_set[i]);
+				Assert::AreEqual(result_set[i], ret);
+			}
+			string test_str = "abc";
+			string& ret = gcommon::TrimString(test_str, 'a');
+			Assert::AreSame(ret, test_str);
+			Assert::AreEqual(string("bc"), ret);
+
+			wstring test_setw[] = {
+				L"",
+				L" ",
+				L" a b c",
+				L"a b c ",
+				L" a b c ",
+			};
+			wstring result_setw[] = {
+				L"",
+				L"",
+				L"a b c",
+				L"a b c",
+				L"a b c",
+			};
+			for (size_t i = 0; i < test_setw->size(); i++)
+			{
+				wstring& retw = gcommon::TrimString(test_setw[i], ' ');
+				Assert::AreSame(retw, test_setw[i]);
+				Assert::AreEqual(result_setw[i], retw);
+			}
+			wstring test_strw = L"abc";
+			wstring& retw = gcommon::TrimString(test_strw, 'a');
+			Assert::AreSame(retw, test_strw);
+			Assert::AreEqual(wstring(L"bc"), retw);
 		}
 		TEST_METHOD(Test_RemoveAllChar)
 		{
-			Assert::Fail(TEXT("no test"));
+			string test_str = "";
+			string& ret = gcommon::RemoveAllChar(test_str, ' ');
+			Assert::AreSame(ret, test_str);
+			Assert::AreEqual(string(""), ret);
+			test_str = " ";
+			ret = gcommon::RemoveAllChar(test_str, ' ');
+			Assert::AreSame(ret, test_str);
+			Assert::AreEqual(string(""), ret);
+			test_str = " a b c ";
+			ret = gcommon::RemoveAllChar(test_str, ' ');
+			Assert::AreSame(ret, test_str);
+			Assert::AreEqual(string("abc"), ret);
+
+			wstring test_strw = L"";
+			wstring& retw = gcommon::RemoveAllChar(test_strw, ' ');
+			Assert::AreSame(retw, test_strw);
+			Assert::AreEqual(wstring(L""), retw);
+			test_strw = L" ";
+			retw = gcommon::RemoveAllChar(test_strw, ' ');
+			Assert::AreSame(retw, test_strw);
+			Assert::AreEqual(wstring(L""), retw);
+			test_strw = L" a b c ";
+			retw = gcommon::RemoveAllChar(test_strw, ' ');
+			Assert::AreSame(retw, test_strw);
+			Assert::AreEqual(wstring(L"abc"), retw);
 		}
 		TEST_METHOD(Test_ReplaseAllSubString)
 		{
-			Assert::Fail(TEXT("no test"));
+			typedef struct _test_set
+			{
+				string ret;
+				string str;
+				string subsrc;
+				string subdst;
+				tstring testid;
+			}TEST_SET;
+			TEST_SET testset[] =
+			{
+				{ "", "", "abc", "123", TEXT("T1") },
+				{ "def", "def", "abc", "123", TEXT("T2") },
+				{ "ppp123qqq", "pppabcqqq", "abc", "123", TEXT("T3") },
+				{ "pppabcqqq", "pppabcqqq", "abc", "abc", TEXT("T4") },
+				{ "pppabcqqq", "pppabcqqq", "", "123", TEXT("T5") },
+				{ "pppqqq", "pppabcqqq", "abc", "", TEXT("T6") },
+				{ "ppp123ttt123qqq", "pppabctttabcqqq", "abc", "123", TEXT("T7") },
+				{ "ppptttqqq", "pppabctttabcqqq", "abc", "", TEXT("T8") },
+				{ "ppp123123qqq", "pppabcabcqqq", "abc", "123", TEXT("T9") },
+				{ "pppabcqqq", "pppabccqqq", "abc", "ab", TEXT("T10") },
+			};
+
+			for (size_t i = 0; i < 10; i++)
+			{
+				string& ret = gcommon::ReplaseAllSubString(testset[i].str, testset[i].subsrc, testset[i].subdst);
+				Assert::AreSame(ret, testset[i].str, testset[i].testid.c_str());
+				Assert::AreEqual(testset[i].ret, ret, testset[i].testid.c_str());
+			}
+
+
+			typedef struct _test_setw
+			{
+				wstring ret;
+				wstring str;
+				wstring subsrc;
+				wstring subdst;
+				tstring testid;
+			}TEST_SETW;
+			TEST_SETW testsetw[] =
+			{
+				{ L"", L"", L"abc", L"123", TEXT("T1") },
+				{ L"def", L"def", L"abc", L"123", TEXT("T2") },
+				{ L"ppp123qqq", L"pppabcqqq", L"abc", L"123", TEXT("T3") },
+				{ L"pppabcqqq", L"pppabcqqq", L"abc", L"abc", TEXT("T4") },
+				{ L"pppabcqqq", L"pppabcqqq", L"", L"123", TEXT("T5") },
+				{ L"pppqqq", L"pppabcqqq", L"abc", L"", TEXT("T6") },
+				{ L"ppp123ttt123qqq", L"pppabctttabcqqq", L"abc", L"123", TEXT("T7") },
+				{ L"ppptttqqq", L"pppabctttabcqqq", L"abc", L"", TEXT("T8") },
+				{ L"ppp123123qqq", L"pppabcabcqqq", L"abc", L"123", TEXT("T9") },
+				{ L"pppabcqqq", L"pppabccqqq", L"abc", L"ab", TEXT("T10") },
+			};
+
+			for (size_t i = 0; i < 10; i++)
+			{
+				wstring& retw = gcommon::ReplaseAllSubString(testsetw[i].str, testsetw[i].subsrc, testsetw[i].subdst);
+				Assert::AreSame(retw, testsetw[i].str, testsetw[i].testid.c_str());
+				Assert::AreEqual(testsetw[i].ret, retw, testsetw[i].testid.c_str());
+			}
 		}
 		TEST_METHOD(Test_GetConfigString)
 		{

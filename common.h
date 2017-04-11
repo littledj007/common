@@ -48,17 +48,17 @@ namespace gcommon
 	vector<wstring> SplitString(const wstring& str, const wchar_t ch);
 	string& TrimString(string& str, const char ch = ' ');
 	wstring& TrimString(wstring& str, const wchar_t ch = ' ');
-	void RemoveAllChar(string& str, const char ch);
-	void RemoveAllChar(wstring& str, const wchar_t ch);
+	string& RemoveAllChar(string& str, const char ch);
+	wstring& RemoveAllChar(wstring& str, const wchar_t ch);
+	string& ReplaseAllSubString(string& str, const string& src, const string& dst);
+	wstring& ReplaseAllSubString(wstring& str, const wstring& src, const wstring& dst);
 	void DeleteEmptyItems(vector<string>& strs);
 	wstring StringToWString(const string& str);
 	string WStringToString(const wstring& str);
 	tstring StringToTString(const string& str);
 	tstring WStringToTString(const wstring& str);
 	string TStringToString(const tstring& str);
-	wstring TStringToWString(const tstring& str);
-	void ReplaseAllSubString(string& str, const string& src, const string& dst);
-	void ReplaseAllSubString(wstring& str, const wstring& src, const wstring& dst);
+	wstring TStringToWString(const tstring& str);	
 	tstring GetConfigString(const tstring& filename, const tstring& key,
 		const tstring& dft = TEXT(""), const tstring& title = TEXT("config"));
 	int GetConfigInt(const tstring& filename, const tstring& key,

@@ -498,6 +498,7 @@ namespace gcommon
 	*   分割结果
 	* [修改记录]:
 	*   2017-03-13,littledj: create
+	*   2017-04-11,littledj: avoid empty substring
 	********************************************************************/
 	vector<wstring> SplitString(const wstring& str, const wchar_t ch)
 	{
@@ -506,11 +507,13 @@ namespace gcommon
 		size_t pos = str.find(ch);
 		while (pos != wstring::npos)
 		{
-			strs.push_back(str.substr(start, pos - start));
+			if (pos > start)
+				strs.push_back(str.substr(start, pos - start));
 			start = pos + 1;
 			pos = str.find(ch, start);
 		}
-		strs.push_back(str.substr(start, str.length() - start));
+		if (start < str.length())
+			strs.push_back(str.substr(start, str.length() - start));
 		return strs;
 	}
 	vector<string> SplitString(const string& str, const char ch)
@@ -525,11 +528,13 @@ namespace gcommon
 		size_t pos = str.find(ch);
 		while (pos != string::npos)
 		{
-			strs.push_back(str.substr(start, pos - start));
+			if(pos > start)
+				strs.push_back(str.substr(start, pos - start));
 			start = pos + 1;
 			pos = str.find(ch, start);
 		}
-		strs.push_back(str.substr(start, str.length() - start));
+		if(start < str.length())
+			strs.push_back(str.substr(start, str.length() - start));
 		return strs;
 	}
 
@@ -588,21 +593,24 @@ namespace gcommon
 	*   str: （被修改）输入字符串
 	*   ch: 需要删除的字符
 	* [返回值]:
-	*   无
+	*   修改后的字符串
 	* [修改记录]:
 	*   2017-03-13,littledj: create
+	*   2017-04-11,littledj: return new string
 	********************************************************************/
-	void RemoveAllChar(string& str, const char ch)
+	string& RemoveAllChar(string& str, const char ch)
 	{
 		size_t delch = string::npos;
 		while ((delch = str.find(ch)) != string::npos)
 			str.erase(delch, 1);
+		return str;
 	}
-	void RemoveAllChar(wstring& str, const wchar_t ch)
+	wstring& RemoveAllChar(wstring& str, const wchar_t ch)
 	{
 		size_t delch = wstring::npos;
 		while ((delch = str.find(ch)) != wstring::npos)
 			str.erase(delch, 1);
+		return str;
 	}
 
 	/********************************************************************
@@ -707,22 +715,31 @@ namespace gcommon
 	*   无
 	* [修改记录]:
 	*   2017-03-13,littledj: create
+	*   2017-04-11,littledj: avoid infinite loop when src == dst
 	********************************************************************/
-	void ReplaseAllSubString(string & str, const string & src, const string & dst)
+	string& ReplaseAllSubString(string & str, const string & src, const string & dst)
 	{
-		size_t fd = string::npos;
-		while ((fd = str.find(src)) != string::npos)
+		if (str.empty() || src.empty())
+			return str;
+		size_t fd = 0;
+		while ((fd = str.find(src, fd)) != string::npos)
 		{
 			str.replace(fd, src.size(), dst);
+			fd++;
 		}
+		return str;
 	}
-	void ReplaseAllSubString(wstring & str, const wstring & src, const wstring & dst)
+	wstring& ReplaseAllSubString(wstring & str, const wstring & src, const wstring & dst)
 	{
-		size_t fd = wstring::npos;
-		while ((fd = str.find(src)) != wstring::npos)
+		if (str.empty() || src.empty())
+			return str;
+		size_t fd = 0;
+		while ((fd = str.find(src, fd)) != wstring::npos)
 		{
 			str.replace(fd, src.size(), dst);
+			fd++;
 		}
+		return str;
 	}
 
 	/********************************************************************
