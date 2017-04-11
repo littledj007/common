@@ -1,3 +1,5 @@
+// test
+
 #include "stdafx.h"
 #include "CppUnitTest.h"
 #include "common.h"
@@ -15,7 +17,7 @@ using namespace gcommon;
 #endif
 
 #endif
-
+ 
 namespace UnitTest_common
 {
     TEST_CLASS(UnitTest_common)
