@@ -7,27 +7,28 @@
 #include <conio.h>
 
 using namespace gcommon;
+using namespace gcli;
 
 GCLI::GCLI(void)
 {
-    m_prompt.clear();
+    m_shouldExit = false;
 }
 
 GCLI::~GCLI(void)
 {
 }
 
-/********************************************************************/
-/* 函数名: Init
-/* 描述: 初始化GCLI类
-/* 输入:
-/*   prompt: shell中显示的前导符（可以为空，默认值："analyze shell> "）
-/* 输出:
-/*   true: 初始化成功
-/*   false: 初始化失败
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: Init
+* 描述: 初始化GCLI类
+* 输入:
+*   prompt: shell中显示的前导符（可以为空，默认值："analyze shell> "）
+* 输出:
+*   true: 初始化成功
+*   false: 初始化失败
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 bool GCLI::Init(const tstring& prompt)
 {
     m_handlerMap.clear();
@@ -36,17 +37,17 @@ bool GCLI::Init(const tstring& prompt)
     return true;
 }
 
-/********************************************************************/
-/* 函数名: RegisterHandler
-/* 描述: 注册指定命令和对应的回调函数（每次注册一个）
-/* 输入:
-/*   handler: 结构体，包括命令、回调函数、描述
-/* 输出:
-/*   true: 注册成功
-/*   false: 注册失败
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: RegisterHandler
+* 描述: 注册指定命令和对应的回调函数（每次注册一个）
+* 输入:
+*   handler: 结构体，包括命令、回调函数、描述
+* 输出:
+*   true: 注册成功
+*   false: 注册失败
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 bool GCLI::RegisterHandler(SHELL_HANDLER handler)
 {
     // 参数检查
@@ -65,18 +66,18 @@ bool GCLI::RegisterHandler(SHELL_HANDLER handler)
     return true;
 }
 
-/********************************************************************/
-/* 函数名: RegisterHandlers
-/* 描述: 注册指定命令和对应的回调函数（批量注册）
-/* 输入:
-/*   handler: 结构体数组，包括命令、回调函数、描述
-/*   nCount: 结构体数组元素数量
-/* 输出:
-/*   true: 注册成功
-/*   false: 注册失败
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: RegisterHandlers
+* 描述: 注册指定命令和对应的回调函数（批量注册）
+* 输入:
+*   handler: 结构体数组，包括命令、回调函数、描述
+*   nCount: 结构体数组元素数量
+* 输出:
+*   true: 注册成功
+*   false: 注册失败
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 bool GCLI::RegisterHandlers(SHELL_HANDLER handler[], int count)
 {
     // 参数检查
@@ -93,36 +94,38 @@ bool GCLI::RegisterHandlers(SHELL_HANDLER handler[], int count)
     return true;
 }
 
-/********************************************************************/
-/* 函数名: DispatchCommand
-/* 描述: 命令分发函数
-/* 输入:
-/*   cmd: 待分发的命令(包括携带的参数)
-/* 输出:
-/*   无
-/* 修改记录:
-/*   2013-12-02,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: DispatchCommand
+* 描述: 命令分发函数
+* 输入:
+*   cmd: 待分发的命令(包括携带的参数)
+* 输出:
+*   无
+* 修改记录:
+*   2013-12-02,littledj: create
+*   2017-04-12,littledj: 空命令不再显示错误信息
+*                        使用SplitString代替split
+*                        任何情况下“exit”命令均可用
+********************************************************************/
 void GCLI::DispatchCommand(const tstring& command)
 {
     // 参数检查
-    if (command.empty() || command.length() == 0 || command.length() > MAX_CMD_LEN)
+    if (command.empty() || command.length() == 0)
     {
-        tprintf(TEXT("command is <null> or too long!\n"));
+        return;
+    }
+    if (command.length() > MAX_CMD_LEN)
+    {
+        tprintf(TEXT("  <bad command>\n"));
         return;
     }
 
-    // 调试信息
-    //tprintf(TEXT("debug: "));
-    //tprintf(command.c_str());
-    //tprintf(TEXT("\n"));
-
     // 确定命令
-    vector<tstring> cmdList = split(command);
+    vector<tstring> cmdList = SplitString(command, ' ');
     int argc = cmdList.size() - 1;
     if (argc > MAX_CMD_PARA_COUNT)
     {
-        tprintf(TEXT("to many arguments!\n"));
+        tprintf(TEXT("  <to many arguments>\n"));
         return;
     }
 
@@ -133,41 +136,47 @@ void GCLI::DispatchCommand(const tstring& command)
     {
         shell_handler = (*element).second;
         (*shell_handler.handler)(command);    // 调用回调函数
-
-        // 默认退出命令（必须调用对应默认函数）
         if (cmdList[0] == DEFAULT_CMD_EXIT)
         {
             Exit();
         }
     }
+    // 默认退出命令（必须调用对应默认函数）
+    else if (cmdList[0] == DEFAULT_CMD_EXIT)
+    {
+        Exit();
+    }
     // 默认帮助命令（默认函数将会被用户注册的函数覆盖）
     else if (cmdList[0] == DEFAULT_CMD_HELP)
     {
-        ShowHelp();
+        ShowHelp(command);
     }
     else
     {
-        tprintf(TEXT("<bad command>\n"));
+        tprintf(TEXT("  <bad command>\n"));
     }
 }
 
-/********************************************************************/
-/* 函数名: CMD_Loop
-/* 描述: 命令处理主循环
-/* 修改记录:
-/*   2013-12-02,littledj: create
-/*   2013-12-03,littledj: 增加[tab]和[?]的联想功能
-/********************************************************************/
+/********************************************************************
+* 函数名: CMD_Loop
+* 描述: 命令处理主循环
+* 修改记录:
+*   2013-12-02,littledj: create
+*   2013-12-03,littledj: 增加[tab]和[?]的联想功能
+*   2017-04-12,littledj: 允许handlerMap未初始化
+*                        修复cmd填0不彻底的bug
+*                        修复联想功能中命令拷贝不全的bug
+********************************************************************/
 void GCLI::MainLoop()
 {
     // 参数检查
     if (m_prompt.empty())
         m_prompt = DEFAULT_PROMPT;
-    if (m_handlerMap.empty())
-        return;
-    if (m_prompt.length() > MAX_PROMPT_LEN ||
-        m_handlerMap.size() == 0)
-        return;
+    if (m_prompt.length() > MAX_PROMPT_LEN)
+    {
+        tprintf(TEXT("<prompt too long>\n"));
+        m_prompt.resize(MAX_PROMPT_LEN);
+    }
 
     unsigned int i = 0;
     list<tstring> cmdList;
@@ -189,7 +198,7 @@ void GCLI::MainLoop()
         {
             tprintf(m_prompt.c_str());
             pos = 0;
-            memset(cmd, 0, MAX_CMD_LEN + 1);
+            memset(cmd, 0, sizeof(tchar) * (MAX_CMD_LEN + 1));
             bInit = false;
         }
 
@@ -218,7 +227,7 @@ void GCLI::MainLoop()
         // 将联想命令拷贝到cmd，清空联想
         if (cmdAss)
         {
-            memcpy(cmd, cmdAss->strCMD.c_str(), pos);
+            tcscpy(cmd, cmdAss->strCMD.c_str());
             delete cmdAss;
             cmdAss = NULL;
         }
@@ -300,7 +309,7 @@ void GCLI::MainLoop()
                     break;
 
                 if (posList != cmdList.cbegin())
-                {                                        
+                {
                     strTmp = *(--posList);
                 }
                 else
@@ -324,14 +333,14 @@ void GCLI::MainLoop()
                 {
                     strTmp = *posList;
                 }
-                else if(pos)
+                else if (pos)
                 {
                     while (pos--)
                         tprintf(TEXT("\b \b"));
                     memset(cmd, 0, MAX_CMD_LEN + 1);
                     pos = 0;
                 }
-                    
+
                 break;
             case 'K':    // 左
                 if (pos > 0)
@@ -375,7 +384,7 @@ void GCLI::MainLoop()
             // 命令超过了允许的最大长度
             if (pos >= MAX_CMD_LEN)
             {
-                tprintf(TEXT("\ncommand too long !\n"));
+                tprintf(TEXT("\n  <command too long>\n"));
                 bInit = true;
                 continue;
             }
@@ -395,17 +404,17 @@ void GCLI::MainLoop()
     }
 }
 
-/********************************************************************/
-/* 函数名: GetNextAssociat
-/* 描述: 获取与cmd匹配的联想命令（循环获取，只显示命令全称）
-/* 输入:
-/*   cmd: 联想词根
-/* 输出:
-/*   NULL: 未找到匹配的联想命令
-/*   char*: 匹配的命令指针
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: GetNextAssociat
+* 描述: 获取与cmd匹配的联想命令（循环获取，只显示命令全称）
+* 输入:
+*   cmd: 联想词根
+* 输出:
+*   NULL: 未找到匹配的联想命令
+*   char*: 匹配的命令指针
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 PSHELL_HANDLER GCLI::GetNextAssociat(const tstring& cmd)
 {
     if (m_handlerMap.empty() || cmd.empty())
@@ -418,7 +427,7 @@ PSHELL_HANDLER GCLI::GetNextAssociat(const tstring& cmd)
     if (pos == m_handlerMap.cend() || ++pos == m_handlerMap.cend())
     {
         pos = m_handlerMap.cbegin();
-    }    
+    }
     else
     {
         pos++;
@@ -434,26 +443,26 @@ PSHELL_HANDLER GCLI::GetNextAssociat(const tstring& cmd)
             {
                 return sh;
             }
-        }    
+        }
         if (++pos == m_handlerMap.cend())
         {
             pos = m_handlerMap.cbegin();
         }
-    }    
+    }
     delete sh;
     return NULL;
 }
 
-/********************************************************************/
-/* 函数名: ListAssociat
-/* 描述: 显示获取与cmd匹配的联想命令(用于处理'?'命令)
-/* 输入:
-/*   cmd: 联想词根
-/* 输出:
-/*   无
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: ListAssociat
+* 描述: 显示获取与cmd匹配的联想命令(用于处理'?'命令)
+* 输入:
+*   cmd: 联想词根
+* 输出:
+*   无
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 void GCLI::ListAssociat(const tstring& cmd)
 {
     if (cmd.empty())
@@ -486,56 +495,63 @@ void GCLI::ListAssociat(const tstring& cmd)
     }
 }
 
-/********************************************************************/
-/* 函数名: Exit
-/* 描述: 如果用户没有注册命令“exit”，则该命令将调用此默认函数
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
+/********************************************************************
+* 函数名: Exit
+* 描述: 如果用户没有注册命令“exit”，则该命令将调用此默认函数
+* 修改记录:
+*   2013-12-03,littledj: create
+********************************************************************/
 void GCLI::Exit()
 {
     m_shouldExit = true;
 }
 
-/********************************************************************/
-/* 函数名: ShowHelp
-/* 描述: 如果用户没有注册命令“help”，则该命令将调用此默认函数
-/* 修改记录:
-/*   2013-12-03,littledj: create
-/********************************************************************/
-void GCLI::ShowHelp()
-{
-    tprintf(TEXT("This is DEFAULT help info:\n"));
-    for each (auto var in m_handlerMap)
+/********************************************************************
+* 函数名: ShowHelp
+* 描述: 如果用户没有注册命令“help”，则该命令将调用此默认函数
+* 修改记录:
+*   2013-12-03,littledj: create
+*   2017-04-12,littledj: 增加命令详细使用说明的显示
+********************************************************************/
+void GCLI::ShowHelp(const tstring &cmd)
+{    
+    if (cmd.empty() || cmd.substr(0,4) != TEXT("help"))
+    {
+        tprintf(TEXT("  <bad command>\n"));
+        return;
+    }
+
+    if (m_handlerMap.empty())
+    {
+        tprintf(TEXT("  <empty handler>\n"));
+        return;
+    }
+    
+    vector<tstring> cmdlist = SplitString(cmd);
+    if (cmdlist.size() > 1)
+    {
+        if (m_handlerMap.find(cmdlist[1]) == m_handlerMap.end())
+        {
+            tprintf(TEXT("  <bat command>\n"));
+            return;
+        }
+
+        auto &handler = m_handlerMap[cmdlist[1]];
+        tprintf(TEXT("  %s\n"), handler.strToolTip.c_str());
+        if (handler.type == CMD_TYPE::FULL)
+        {
+            tprintf(TEXT("  usage: \n"));
+            vector<tstring> usages = SplitString(handler.strUsage, '\n');
+            for (auto usage : usages)
+            {
+                tprintf(TEXT("    %s\n"), usage.c_str());
+            }            
+        }
+        return;
+    }
+
+    for (auto var : m_handlerMap)
     {
         tprintf(TEXT("  %-10s  %s\n"), var.first.c_str(), var.second.strToolTip.c_str());
     }
-}
-
-vector<tstring> GCLI::split(const tstring& str)
-{
-    vector<tstring> strList;
-    if (str.empty())
-    {
-        return strList;
-    }
-
-    int comma_n = 0;
-    tstring strIn = str;
-    do
-    {
-        tstring tmp_s = TEXT("");
-        comma_n = strIn.find(TEXT(" "));
-        if (-1 == comma_n)
-        {
-            tmp_s = strIn.substr(0, strIn.length());
-            strList.push_back(tmp_s);
-            break;
-        }
-        tmp_s = strIn.substr(0, comma_n);
-        strIn.erase(0, comma_n + 1);
-        strList.push_back(tmp_s);
-    } while (true);
-
-    return strList;
 }
