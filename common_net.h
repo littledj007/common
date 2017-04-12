@@ -156,7 +156,7 @@ int static PKT_SetWORD(char* buf, int bufSize, int pos, unsigned short data)
         return -1;
     }
 
-    unsigned short data_net = gcommon::htons(data);
+    unsigned short data_net = gcommon::g_htons(data);
     memcpy(buf + pos, (char*)&data_net, data_size);
     return data_size;
 }
@@ -211,7 +211,7 @@ int static PKT_AddDWORD(char* buf, int bufSize, int &pos, unsigned long data)
         return -1;
     }
 
-    unsigned long data_net = gcommon::htonl(data);
+    unsigned long data_net = gcommon::g_htonl(data);
     memcpy(buf + pos, (char*)&data_net, data_size);
     pos += data_size;
     return data_size;
