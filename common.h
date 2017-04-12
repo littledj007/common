@@ -44,8 +44,8 @@ namespace gcommon
     uint32_t random(uint32_t start, uint32_t end);
     char* wtoa(const wchar_t* data, int len = 0);
     wchar_t* atow(const char* data, int len = 0);
-    vector<string> SplitString(const string& str, const char ch);
-    vector<wstring> SplitString(const wstring& str, const wchar_t ch);
+    vector<string> SplitString(const string& str, const char ch = ' ');
+    vector<wstring> SplitString(const wstring& str, const wchar_t ch = ' ');
     string& TrimString(string& str, const char ch = ' ');
     wstring& TrimString(wstring& str, const wchar_t ch = ' ');
     string& RemoveAllChar(string& str, const char ch);
