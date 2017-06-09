@@ -66,5 +66,5 @@ namespace gcommon
     void SetConfigString(const tstring& filename, const tstring& key,
         const tstring& value = TEXT(""), const tstring& title = TEXT("config"));
     void SetConfigInt(const tstring& filename, const tstring& key,
-        const int value = 0, const tstring& title = TEXT("config"));
+        const int value = 0, const tstring& title = TEXT("config"));    
 }

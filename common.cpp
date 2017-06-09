@@ -96,7 +96,7 @@ namespace gcommon
         if (argv == NULL || pos <= 0 ||
             argc <= 1 || argv[0] == NULL)
             return 0;
-        if (prefix != NULL && prefix[0] != '-' && prefix[0] != 0)    //    前导符必须以'-'开始
+        if (prefix != NULL && prefix[0] != '-' && prefix[0] != 0)    // 前导符必须以'-'开始
             return 0;
 
         for (int i = 0; i < argc; i++)
@@ -109,10 +109,10 @@ namespace gcommon
             while (argv[i][0] == ' ')
             {
                 argv[i] += 1;
-                if (argv[i][0] == 0) 
+                if (argv[i][0] == 0)
                     break;
             }
-            if (argv[i][0] == 0) 
+            if (argv[i][0] == 0)
                 continue;
 
             // 寻找无前导参数
@@ -130,19 +130,19 @@ namespace gcommon
             else if (tcsncmp(argv[i], prefix, tcslen(prefix)) == 0 &&    // 寻找指定前导参数
                 tcslen(argv[i]) == tcslen(prefix))
             {
-                if( ++pcount == pos)
+                if (++pcount == pos)
                     bFindPrefix = true;
                 do
                 {
                     // 判断后面是否还有参数
                     if (++i == argc || argv[i] == NULL)
                         break;
-                    
+
                     // 去除起始空格
                     while (argv[i][0] == ' ')
                     {
                         argv[i] += 1;
-                        if (argv[i][0] == 0) 
+                        if (argv[i][0] == 0)
                             break;
                     }
                 } while (argv[i][0] == 0);
@@ -266,6 +266,7 @@ namespace gcommon
     * [修改记录]:
     *   2014-12-17,littledj: create
     *   2017-03-28,littledj: change rettype to string
+    *   2017-06-09,littledj: compile on macos
     ********************************************************************/
     string inet_ltoi(uint32_t ip)
     {
@@ -275,7 +276,7 @@ namespace gcommon
         chIP[2] = (uint8_t)(ip >> 16);
         chIP[3] = (uint8_t)(ip >> 24);
 
-        static char strIP[16];
+        char strIP[16];
         memset(strIP, 0, 16 * sizeof(char));
 
         sprintf(strIP, "%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
@@ -289,10 +290,10 @@ namespace gcommon
         chIP[2] = (uint8_t)(ip >> 16);
         chIP[3] = (uint8_t)(ip >> 24);
 
-        static wchar_t strIP[16];
-        memset(strIP, 0, 16 * sizeof(char));
+        wchar_t strIP[16];
+        memset(strIP, 0, 16 * sizeof(wchar_t));
 
-        _swprintf(strIP, L"%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
+        swprintf(strIP, 16, L"%u.%u.%u.%u", chIP[0], chIP[1], chIP[2], chIP[3]);
         return wstring(strIP);
     }
     tstring inet_ltot(uint32_t ip)
@@ -477,7 +478,7 @@ namespace gcommon
             return NULL;
         }
 
-        size_t data_len = len == 0 ? strlen(data) : len;        
+        size_t data_len = len == 0 ? strlen(data) : len;
         wchar_t* retData = new wchar_t[data_len + 1];
         for (size_t i = 0; i < data_len; i++)
         {
@@ -528,12 +529,12 @@ namespace gcommon
         size_t pos = str.find(ch);
         while (pos != string::npos)
         {
-            if(pos > start)
+            if (pos > start)
                 strs.push_back(str.substr(start, pos - start));
             start = pos + 1;
             pos = str.find(ch, start);
         }
-        if(start < str.length())
+        if (start < str.length())
             strs.push_back(str.substr(start, str.length() - start));
         return strs;
     }
@@ -785,7 +786,7 @@ namespace gcommon
         char* buff = new char[4096]; // max config size        
         memset(buff, 0, 4096);
         size_t flen = fread(buff, 1, 4096, fp);
-        fclose(fp);                
+        fclose(fp);
 
         size_t newlen = 0;
         char* newbuff = new char[4096];
@@ -816,11 +817,11 @@ namespace gcommon
             {
                 line = false;
                 if (strncmp(skey.c_str(), buff + keypos, skey.size()) == 0)
-                    break;                
+                    break;
             }
             newbuff[keypos] = buff[keypos];
-        }        
-                
+        }
+
         if (keypos == flen)
         {
             // 未找到, 写入文件尾
@@ -845,7 +846,7 @@ namespace gcommon
                 skey.c_str(), svalue.c_str());
             memcpy(newbuff + newlen, buff + remain, flen - remain);
             newlen += flen - remain;
-        }        
+        }
 
         // 清空文件，并打开
         if ((fp = tfopen(filename.c_str(), TEXT("w"))) == NULL)
@@ -950,7 +951,7 @@ namespace gcommon
                                 return dft;
 
                             //找key对应变量
-                            tcscpy(tmpstr, tmp + 1);                            
+                            tcscpy(tmpstr, tmp + 1);
                             return tmpstr;
                         }
                     }
