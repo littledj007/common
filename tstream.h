@@ -31,6 +31,7 @@ namespace gcommon
 
 #define taccess _waccess
 #define tfopen _wfopen
+#define tfopen_s _wfopen_s
 #define tsystem _wsystem
 
 #define ttoi _wtoi
@@ -88,6 +89,7 @@ namespace gcommon
 
 #define taccess access
 #define tfopen fopen
+#define tfopen_s fopen_s
 #define tsystem system
 
 #define ttoi atoi
