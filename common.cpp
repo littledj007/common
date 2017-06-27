@@ -85,7 +85,7 @@ namespace gcommon
     *   2014-04-08,littledj: 单元测试，并修改
     *   2017-03-25,littledj: 调整返回值，重构单元测试
     *********************************************************************/
-    int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos)
+    int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, const tchar* &out, int pos)
     {
         int count = 0, pcount = 0;
         bool bFind = false;

@@ -106,7 +106,7 @@ namespace UnitTest_common
                 { 1, TEXT("bb"), TEXT("T19") }
             };
 
-            tchar* out = NULL;
+            const tchar* out = NULL;
             int ret = -3;
             for (size_t i = 0; i < 18; i++)
             {

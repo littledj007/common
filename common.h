@@ -34,7 +34,7 @@ namespace gcommon
     uint16_t g_ntohs(const uint16_t data);
     uint32_t g_htonl(const uint32_t data);
     uint32_t g_ntohl(const uint32_t data);
-    int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, tchar* &out, int pos = 1);
+    int GetParaFromARG(int argc, tchar* argv[], tchar* prefix, const tchar* &out, int pos = 1);
     tstring GetCurrentDirPath();
     string inet_ltoi(uint32_t ip);
     wstring inet_ltow(uint32_t ip);
