@@ -352,11 +352,126 @@ namespace UnitTest_common
         }
         TEST_METHOD(Test_GetConfigString)
         {
-            Assert::Fail(TEXT("no test"));
+            tstring testcfg = TEXT("test.ini");
+            _tremove(testcfg.c_str());
+            FILE* ff = tfopen(testcfg.c_str(), TEXT("w"));
+            if (ff == NULL)
+            {
+                _tremove(testcfg.c_str());
+                Assert::IsTrue(false, TEXT("create test file error"));
+                return;
+            }
+            string filedata =
+                "[config1]\n"
+                "# this is comment\n"
+                "TEST1=data1\n"
+                "TEST2=  data2 \n"
+                "# this is comment\n"
+                "TEST3= \n"
+                "# this is comment\n"
+                "TEST4\n"
+                "# this is comment\n"
+                "TEST5=12345\n"
+                "[config2]\n"
+                "TEST1=bele1\n"
+                "# this is comment\n"
+                "TEST2=bele2 \n"
+                "TEST6=bele6 \n";
+            
+            fwrite(filedata.c_str(), 1, filedata.size(), ff);
+            fclose(ff);
+
+            typedef struct _test_set
+            {
+                tstring ret;
+                tstring filename;
+                tstring key;
+                tstring dft;
+                tstring title;
+                tstring testid;
+            }TEST_SET;
+            TEST_SET testset[] =
+            {
+                { TEXT("data1"),TEXT("test.ini"), TEXT("TEST1"), TEXT("aaaaa"), TEXT("config1"), TEXT("T1") },
+                { TEXT("bele1"),TEXT("test.ini"), TEXT("TEST1"), TEXT("aaaaa"), TEXT("config2"), TEXT("T2") },
+                { TEXT("aaaaa"),TEXT("test.ini"), TEXT("TEST1"), TEXT("aaaaa"), TEXT("config3"), TEXT("T3") },
+                { TEXT("data2"),TEXT("test.ini"), TEXT("TEST2"), TEXT("aaaaa"), TEXT("config1"), TEXT("T4") },
+                { TEXT("bele2"),TEXT("test.ini"), TEXT("TEST2"), TEXT("aaaaa"), TEXT("config2"), TEXT("T5") },
+                { TEXT("bbbbb"),TEXT("test.ini"), TEXT("TEST3"), TEXT("bbbbb"), TEXT("config1"), TEXT("T6") },
+                { TEXT("ccccc"),TEXT("test.ini"), TEXT("TEST4"), TEXT("ccccc"), TEXT("config1"), TEXT("T7") },
+                { TEXT("12345"),TEXT("test.ini"), TEXT("TEST5"), TEXT("aaaaa"), TEXT("config1"), TEXT("T8") },
+                { TEXT("aaaaa"),TEXT("test.ini"), TEXT("TEST6"), TEXT("aaaaa"), TEXT("config1"), TEXT("T9") },
+                { TEXT("ddddd"),TEXT("none.ini"), TEXT("TEST1"), TEXT("ddddd"), TEXT("config1"), TEXT("T10") },
+                { TEXT("eeeee"),TEXT(""), TEXT("TEST1"), TEXT("eeeee"), TEXT("config1"), TEXT("T11") },
+                { TEXT("fffff"),TEXT("test.ini"), TEXT(""), TEXT("fffff"), TEXT("config1"), TEXT("T12") },
+                { TEXT(""),TEXT("test.ini"), TEXT("TEST6"), TEXT(""), TEXT("config1"), TEXT("T13") },
+                { TEXT("data1"),TEXT("test.ini"), TEXT("TEST1"), TEXT("ggggg"), TEXT(""), TEXT("T14") },
+                { TEXT("iiiii"),TEXT("test.ini"), TEXT("TEST6"), TEXT("iiiii"), TEXT("config1"), TEXT("T15") },
+                { TEXT("bele6"),TEXT("test.ini"), TEXT("TEST6"), TEXT("hhhhh"), TEXT(""), TEXT("T16") },
+            };
+            for (auto test : testset)
+            {
+                tstring ret = gcommon::GetConfigString(test.filename, test.key, test.dft, test.title);
+                Assert::AreEqual(test.ret, ret, test.testid.c_str());
+            }
+            _tremove(testcfg.c_str());
         }
         TEST_METHOD(Test_GetConfigInt)
         {
-            Assert::Fail(TEXT("no test"));
+            tstring testcfg = TEXT("test.ini");
+            _tremove(testcfg.c_str());
+            FILE* ff = tfopen(testcfg.c_str(), TEXT("w"));
+            if (ff == NULL)
+            {
+                _tremove(testcfg.c_str());
+                Assert::IsTrue(false, TEXT("create test file error"));
+                return;
+            }
+            string filedata =
+                "[config1]\n"
+                "# this is comment\n"
+                "TEST1=data1\n"
+                "TEST2=  123 \n"
+                "# this is comment\n"
+                "TEST3=23.9\n"
+                "# this is comment\n"
+                "TEST4= \n"
+                "# this is comment\n"
+                "TEST5\n"
+                "TEST6=000.00";
+
+            fwrite(filedata.c_str(), 1, filedata.size(), ff);
+            fclose(ff);
+
+            typedef struct _test_set
+            {
+                int ret;
+                tstring filename;
+                tstring key;
+                int dft;
+                tstring title;
+                tstring testid;
+            }TEST_SET;
+            TEST_SET testset[] =
+            {
+                { 4321,TEXT("test.ini"), TEXT("TEST1"), 4321, TEXT("config1"), TEXT("T1") },
+                { 4321,TEXT("test.ini"), TEXT("TEST1"), 4321, TEXT("config2"), TEXT("T2") },
+                { 123,TEXT("test.ini"), TEXT("TEST2"), 4321, TEXT("config1"), TEXT("T3") },
+                { 4321,TEXT("test.ini"), TEXT("TEST2"), 4321, TEXT("config2"), TEXT("T4") },
+                { 23,TEXT("test.ini"), TEXT("TEST3"), 4321, TEXT("config1"), TEXT("T5") },
+                { 4321,TEXT("test.ini"), TEXT("TEST4"), 4321, TEXT("config1"), TEXT("T6") },
+                { 4321,TEXT("test.ini"), TEXT("TEST5"), 4321, TEXT("config1"), TEXT("T7") },
+                { 4321,TEXT("none.ini"), TEXT("TEST2"), 4321, TEXT("config1"), TEXT("T8") },
+                { 4321,TEXT(""), TEXT("TEST2"), 4321, TEXT("config1"), TEXT("T9") },
+                { 4321,TEXT("test.ini"), TEXT(""), 4321, TEXT("config1"), TEXT("T10") },
+                { 0,TEXT("test.ini"), TEXT("TEST6"), 4321, TEXT("config1"), TEXT("T11") },
+            };
+            for (auto test : testset)
+            {
+                int ret = gcommon::GetConfigInt(test.filename, test.key, test.dft, test.title);
+                Assert::AreEqual(test.ret, ret, test.testid.c_str());
+            }
+            _tremove(testcfg.c_str());
         }
         TEST_METHOD(Test_SetConfigString)
         {

@@ -873,19 +873,24 @@ namespace gcommon
     *   无
     * [修改记录]:
     *   2017-03-13,littledj: create
+    *   2017-06-27,littledj: bypass unit test
     ********************************************************************/
     tstring GetConfigString(const tstring& filename, const tstring& key,
         const tstring& dft, const tstring& title)
     {
+        const uint32_t maxLineLen = 1020;
         FILE *fp;
-        tchar szLine[1024];
+        tchar szLine[maxLineLen + 4];
         szLine[0] = 0;
-        static tchar tmpstr[1024];
+        static tchar tmpstr[maxLineLen + 4];
         int rtnval;
         int i = 0;
         int flag = 0;
         tchar *tmp;
+        tstring rettmp;
 
+        if (key.empty())
+            return dft;
         if ((fp = tfopen(filename.c_str(), TEXT("r"))) == NULL)
         {
             return dft;
@@ -909,14 +914,20 @@ namespace gcommon
                             {}
                             else
                             {
-                                fclose(fp);
-
-                                if (tcslen(tmp) == 1)
-                                    return dft;
-
                                 //找key对应变量
                                 tcscpy(tmpstr, tmp + 1);
-                                return tmpstr;
+                                tstring retstr = tstring(tmpstr);
+                                TrimString(retstr, ' ');
+                                if (retstr.empty())
+                                    retstr = dft;
+
+                                if (flag == 1)
+                                {
+                                    fclose(fp);
+                                    return retstr;
+                                }
+                                else if (rettmp.empty())
+                                    rettmp = retstr;
                             }
                         }
                     }
@@ -926,15 +937,16 @@ namespace gcommon
             }
             else
             {
+                if (i > maxLineLen)
+                    rtnval = '\n';
                 szLine[i++] = rtnval;
                 szLine[i] = 0;
             }
             if (rtnval == '\n' || rtnval == '\r')
             {
-                szLine[i - 1] = 0;
-                i = 0;
+                szLine[i - 1] = 0;                
                 tmp = tcschr(szLine, '=');
-                if ((tmp != NULL) && (flag == 1))
+                if ((tmp != NULL))
                 {
                     if (tcsstr(szLine, key.c_str()) != NULL)
                     {
@@ -945,14 +957,20 @@ namespace gcommon
                         {}
                         else
                         {
-                            fclose(fp);
-
-                            if (tcslen(tmp) == 1)
-                                return dft;
-
                             //找key对应变量
                             tcscpy(tmpstr, tmp + 1);
-                            return tmpstr;
+                            tstring retstr = tstring(tmpstr);
+                            TrimString(retstr, ' ');
+                            if (retstr.empty())
+                                retstr = dft;
+
+                            if (flag == 1)
+                            {
+                                fclose(fp);
+                                return retstr;
+                            }
+                            else if (rettmp.empty())
+                                rettmp = retstr;
                         }
                     }
                 }
@@ -962,15 +980,18 @@ namespace gcommon
                     tcscat(tmpstr, title.c_str());
                     tcscat(tmpstr, TEXT("]"));
                     if (tcsncmp(tmpstr, szLine, tcslen(tmpstr)) == 0)
-                    {
-                        //找到title
-                        flag = 1;
-                    }
+                        flag = 1;//找到title
+                    else if(szLine[0] == '[' && szLine[i-2] == ']')
+                        flag = 0;
                 }
+                i = 0;
             }
         }
         fclose(fp);
-        return dft;
+        if (flag == 0 && title.empty())
+            return rettmp;
+        else 
+            return dft;
     }
 
     /********************************************************************
@@ -985,11 +1006,17 @@ namespace gcommon
     *   无
     * [修改记录]:
     *   2017-03-13,littledj: create
+    *   2017-06-27,littledj: bypass unit test
     ********************************************************************/
     int GetConfigInt(const tstring& filename, const tstring& key,
         const int dft, const tstring& title)
     {
-        return ttoi(GetConfigString(filename, key, to_tstring(dft), title).c_str());
+        tregex reg(TEXT("^[0-9]+([\\.]{1}[0-9]+){0,1}$"));
+        tstring str = GetConfigString(filename, key, to_tstring(dft), title);
+        if (regex_match(str, reg))
+            return ttoi(str.c_str());
+        else
+            return dft;
     }
 
 }
