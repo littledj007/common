@@ -50,6 +50,8 @@ namespace gcommon
     wstring& TrimString(wstring& str, const wchar_t ch = ' ');
     string& RemoveAllChar(string& str, const char ch);
     wstring& RemoveAllChar(wstring& str, const wchar_t ch);
+    string& ReplaseAllChar(string& str, const char src, const char dst);
+    wstring& ReplaseAllChar(wstring& str, const wchar_t src, const wchar_t dst);
     string& ReplaseAllSubString(string& str, const string& src, const string& dst);
     wstring& ReplaseAllSubString(wstring& str, const wstring& src, const wstring& dst);
     void DeleteEmptyItems(vector<string>& strs);

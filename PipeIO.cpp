@@ -166,7 +166,7 @@ bool CPipeIO::ReadPipe(char* buff,uint32_t len,uint32_t& nRead,uint32_t dwTimeou
 /* 修改记录: 
 /*   2013-11-28,littledj: create 
 /********************************************************************/
-bool CPipeIO::WritePipe( char* data, uint32_t len, uint32_t& nWrite, uint32_t dwTimeOut )
+bool CPipeIO::WritePipe( const char* data, uint32_t len, uint32_t& nWrite, uint32_t dwTimeOut )
 {
     // 参数检查
     if (!m_bInit)

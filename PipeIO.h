@@ -39,6 +39,6 @@ public:
 
     // 共用函数
     bool ReadPipe(char* buff, uint32_t len, uint32_t& nRead, uint32_t timeout);//读取数据
-    bool WritePipe(char* data, uint32_t len, uint32_t& nWrite, uint32_t timeout);//写入数据
+    bool WritePipe(const char* data, uint32_t len, uint32_t& nWrite, uint32_t timeout);//写入数据
     void Close();    
 };

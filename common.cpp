@@ -178,7 +178,7 @@ namespace gcommon
     *   tstring: 当前文件夹路径
     * 修改记录:
     *   2013-11-17,littledj: create
-    *   2013-12-07,littledj: 返回值改为CString，不再使用全局变量
+    *   2013-12-07,littledj: 返回值改为string，不再使用全局变量
     *   2015-07-21,littledj; 返回值改为tstring,如果失败返回".\"
     *   2016-07-08,littledj: 增加对linux的支持
     ********************************************************************/
@@ -611,6 +611,28 @@ namespace gcommon
         size_t delch = wstring::npos;
         while ((delch = str.find(ch)) != wstring::npos)
             str.erase(delch, 1);
+        return str;
+    }
+
+    string & ReplaseAllChar(string & str, const char src, const char dst)
+    {
+        size_t fd = 0;
+        while ((fd = str.find(src, fd)) != string::npos)
+        {
+            str.replace(fd, 1, 1, dst);
+            fd++;
+        }
+        return str;
+    }
+
+    wstring & ReplaseAllChar(wstring & str, const wchar_t src, const wchar_t dst)
+    {
+        size_t fd = 0;
+        while ((fd = str.find(src, fd)) != wstring::npos)
+        {
+            str.replace(fd, 1, 1, dst);
+            fd++;
+        }
         return str;
     }
 
