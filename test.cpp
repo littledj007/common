@@ -1,24 +1,32 @@
 #include <Windows.h>
 #include "common.h"
 #include "glogger.h"
-#include "gcli.h"
+#include "gmonitor.h"
 using namespace gcommon;
 
-uint32_t ff(const tstring &ss)
-{
-    printf("aaaa\n");
-    return 111;
-}
-
-gcli::SHELL_HANDLER handler = {
-    TEXT("tttt"), gcli::CMD_TYPE::FULL, ff, TEXT("test cmd"), TEXT("usa 1: aaa\nuse2: bbb")
-};
 
 int main()
 {
-    gcli::GCLI mycli;
-    mycli.RegisterHandler(handler);
-    mycli.MainLoop();
+    gmonitor::MONITOR_THREAD_PARA para;
+    
+    gmonitor::GMonitor test(&para);
+    test.Run();
 
-    getchar();
+
+    test.RegisterItem(TEXT("111"),gmonitor::MONITOR_COLOR::BRIGHT_RED);
+
+    test.RegisterItem(TEXT("ha222h"), gmonitor::MONITOR_COLOR::BRIGHT_RED);
+    Sleep(1000);
+    test.SetScreenWidth(100);
+    for (size_t i = 0; i < 1007770000; i++)
+    {
+        test.SetItemValue(TEXT("111"), TEXT("12345aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbvvvvvvvvvvvvvvvvvvvvvvvvvv")+to_tstring(i));
+        test.SetItemValue(TEXT("ha222h"), TEXT("12345aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbvvvvvvvvvvvvvvvvvvvvvvvvvv") + to_tstring(i));
+
+        Sleep(10);
+    }
+
+    
+    
+    getchar(); 
 }
